@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-func parseListenAddrToUDP(listenAddr *string) net.UDPAddr {
+// ParseListenAddrToUDP converts a string of the "127.0.0.1:443" format to net.UDPAddr.
+func ParseListenAddrToUDP(listenAddr *string) net.UDPAddr {
 	var octetList [4]byte
 	splitAddr := strings.Split(*listenAddr, ":")
 	ipAddr := splitAddr[0]
