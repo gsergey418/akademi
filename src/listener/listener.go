@@ -5,12 +5,16 @@ import (
 	"net"
 )
 
-type Listener struct {
+type Listener interface {
+	Listen(string) error
+}
+
+type UDPListener struct {
 	udpReadBuffer [2048]byte
 }
 
 // Listen opens a UDP socket on the provided address in the format "127.0.0.1:443". This is the main loop of the program.
-func (l *Listener) Listen(listenAddr string) {
+func (l *UDPListener) Listen(listenAddr string) error {
 	udpAddr := ParseListenAddrToUDP(&listenAddr)
 
 	conn, err := net.ListenUDP("udp", &udpAddr)
