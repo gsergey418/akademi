@@ -1,8 +1,9 @@
 package listener
 
 import (
-	"log"
 	"net"
+	"net/http"
+	"net/rpc"
 )
 
 type Listener interface {
@@ -10,24 +11,18 @@ type Listener interface {
 }
 
 type UDPListener struct {
+	RPCAdapter    RPCAdapter
 	udpReadBuffer [2048]byte
 }
 
-// Listen opens a UDP socket on the provided address in the format "127.0.0.1:443". This is the main loop of the program.
-func (l *UDPListener) Listen(listenAddr string) error {
-	udpAddr := ParseListenAddrToUDP(&listenAddr)
-
-	conn, err := net.ListenUDP("udp", &udpAddr)
+// Listen opens a UDP RPC socket on the provided address in the format "127.0.0.1:443". This is the main loop of the program.
+func (ul *UDPListener) Listen(listenAddr string) error {
+	rpc.Register(ul.RPCAdapter)
+	rpc.HandleHTTP()
+	l, err := net.Listen("tcp", listenAddr)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer conn.Close()
-
-	for {
-		n, addr, err := conn.ReadFromUDP(l.udpReadBuffer[:])
-		if err != nil {
-			continue
-		}
-		log.Print("Message from ", addr, ": ", string(l.udpReadBuffer[:n]))
-	}
+	http.Serve(l, nil)
+	return nil
 }
