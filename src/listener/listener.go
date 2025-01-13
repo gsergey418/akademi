@@ -15,7 +15,9 @@ type UDPListener struct {
 	udpReadBuffer [2048]byte
 }
 
-// Listen opens a UDP RPC socket on the provided address in the format "127.0.0.1:443". This is the main loop of the program.
+// Listen opens a UDP RPC socket on the provided address
+// in the format "127.0.0.1:443". This is the main loop
+// of the program.
 func (ul *UDPListener) Listen(listenAddr string) error {
 	rpc.Register(ul.RPCAdapter)
 	rpc.HandleHTTP()
