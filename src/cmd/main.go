@@ -20,7 +20,7 @@ func getRPCAdapater() listener.RPCAdapter {
 }
 
 func getListener() listener.Listener {
-	return &listener.UDPListener{RPCAdapter: getRPCAdapater()}
+	return &listener.RPCListener{RPCAdapter: getRPCAdapater()}
 }
 
 func main() {
