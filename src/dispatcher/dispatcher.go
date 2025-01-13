@@ -9,3 +9,8 @@ import (
 type Dispatcher interface {
 	Ping(*core.RoutingEntry)
 }
+
+// RPCDispatcher is an implementation of the Dispatcher
+// interface that interacts with other peers through HTTP
+// RPC.
+type RPCDispatcher struct{}

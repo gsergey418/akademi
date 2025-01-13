@@ -1,7 +1,8 @@
 package core
 
-type NodeID [256]byte
-type KeyID [256]byte
+// Akademi uses 256-bit node and key IDs.
+type NodeID [32]byte
+type KeyID [32]byte
 type DataBytes []byte
 
 // RoutingEntry is a structure that stores routing
