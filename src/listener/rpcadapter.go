@@ -4,19 +4,28 @@ import (
 	"github.com/gsergey418alt/akademi/core"
 )
 
+// RPCResponse is a structure embedded in all RPC responses of Akademi.
+type RPCResponse struct {
+	NodeID core.NodeID
+}
+
 // RPCAdapter is an interface that enables connection of
 // the core logic to the Listener.
 type RPCAdapter interface {
-	Ping(args struct{}, reply *struct{}) error
-	FindNode(args struct{ nodeID core.NodeID }, reply *struct{ routingEntry *[]core.RoutingEntry }) error
+	Ping(args struct{}, reply *struct{ RPCResponse }) error
+	FindNode(args struct{ nodeID core.NodeID }, reply *struct {
+		RPCResponse
+		routingEntry *[]core.RoutingEntry
+	}) error
 	FindKey(args struct{ keyID core.KeyID }, reply *struct {
+		RPCResponse
 		keyID        core.KeyID
 		routingEntry []core.RoutingEntry
 	}) error
 	Store(args struct {
 		keyID core.KeyID
 		data  core.DataBytes
-	}, reply *struct{}) error
+	}, reply *struct{ RPCResponse }) error
 }
 
 // AkademiNodeRPCAdapter is an interface that enables
@@ -28,7 +37,8 @@ type AkademiNodeRPCAdapter struct {
 // The PING RPC probes a node to see if it is online.
 // STORE instructs a node to store a 〈key, value〉 pair
 // for later retrieval.
-func (a *AkademiNodeRPCAdapter) Ping(args struct{}, reply *struct{}) error {
+func (a *AkademiNodeRPCAdapter) Ping(args struct{}, reply *struct{ RPCResponse }) error {
+	reply.NodeID = a.AkademiNode.NodeID
 	return nil
 }
 
@@ -42,7 +52,11 @@ func (a *AkademiNodeRPCAdapter) Ping(args struct{}, reply *struct{}) error {
 // k items (unless there are fewer than k nodes in all its
 // k-buckets combined, in which case it returns every
 // node it knows about).
-func (a *AkademiNodeRPCAdapter) FindNode(args struct{ nodeID core.NodeID }, reply *struct{ routingEntry *[]core.RoutingEntry }) error {
+func (a *AkademiNodeRPCAdapter) FindNode(args struct{ nodeID core.NodeID }, reply *struct {
+	RPCResponse
+	routingEntry *[]core.RoutingEntry
+}) error {
+	reply.NodeID = a.AkademiNode.NodeID
 	panic("Function \"FindNode\" not implemented.")
 }
 
@@ -51,9 +65,11 @@ func (a *AkademiNodeRPCAdapter) FindNode(args struct{ nodeID core.NodeID }, repl
 // exception. If the RPC recipient has received a STORE
 // RPC for the key, it just returns the stored value.
 func (a *AkademiNodeRPCAdapter) FindKey(args struct{ keyID core.KeyID }, reply *struct {
+	RPCResponse
 	keyID        core.KeyID
 	routingEntry []core.RoutingEntry
 }) error {
+	reply.NodeID = a.AkademiNode.NodeID
 	panic("Function \"FindKey\" not implemented.")
 }
 
@@ -62,6 +78,7 @@ func (a *AkademiNodeRPCAdapter) FindKey(args struct{ keyID core.KeyID }, reply *
 func (a *AkademiNodeRPCAdapter) Store(args struct {
 	keyID core.KeyID
 	data  core.DataBytes
-}, reply *struct{}) error {
+}, reply *struct{ RPCResponse }) error {
+	reply.NodeID = a.AkademiNode.NodeID
 	panic("Function \"Store\" not implemented.")
 }
