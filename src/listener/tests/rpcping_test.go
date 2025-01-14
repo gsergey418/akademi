@@ -32,5 +32,9 @@ func TestRPCPing(t *testing.T) {
 		fmt.Println(err)
 		t.Fail()
 	}
-	fmt.Println(reply.NodeID)
+	fmt.Print("Ping Success! NodeID: ")
+	for b := range reply.NodeID {
+		fmt.Printf("%08b", b)
+	}
+	fmt.Println()
 }

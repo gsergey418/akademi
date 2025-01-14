@@ -12,7 +12,9 @@ const (
 )
 
 func getAkademiNode() *core.AkademiNode {
-	return &core.AkademiNode{}
+	a := &core.AkademiNode{}
+	a.Initialize()
+	return a
 }
 
 func getRPCAdapater() listener.ListenerAdapter {

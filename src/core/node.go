@@ -1,5 +1,10 @@
 package core
 
+import (
+	"crypto/rand"
+	"log"
+)
+
 // Akademi uses 256-bit node and key IDs.
 type NodeID [32]byte
 type KeyID [32]byte
@@ -23,4 +28,13 @@ type AkademiNode struct {
 	KeyValueStore map[KeyID][]byte
 
 	RoutingTable [256][20]RoutingEntry
+}
+
+// The initialize function assigns a random NodeID to the
+// AkademiNode.
+func (a *AkademiNode) Initialize() {
+	_, err := rand.Read(a.NodeID[:])
+	if err != nil {
+		log.Fatal(err)
+	}
 }
