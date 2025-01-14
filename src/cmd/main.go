@@ -15,7 +15,7 @@ func getAkademiNode() *core.AkademiNode {
 	return &core.AkademiNode{}
 }
 
-func getRPCAdapater() listener.RPCAdapter {
+func getRPCAdapater() listener.ListenerAdapter {
 	return &listener.AkademiNodeRPCAdapter{AkademiNode: getAkademiNode()}
 }
 

@@ -16,12 +16,12 @@ type Listener interface {
 // interface that opens a HTTP RPC api on a network
 // address.
 type RPCListener struct {
-	RPCAdapter RPCAdapter
+	RPCAdapter ListenerAdapter
 }
 
-// Listen opens a HTTP RPC socket on the provided address
-// in the format "127.0.0.1:443". This is the main loop
-// of the program.
+// The Listen subroutine opens a HTTP RPC socket on the
+// provided address in the format "127.0.0.1:443". This
+// is the main loop of the program.
 func (ul *RPCListener) Listen(listenAddr string) error {
 	rpc.Register(ul.RPCAdapter)
 	rpc.HandleHTTP()
