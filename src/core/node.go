@@ -28,6 +28,8 @@ type AkademiNode struct {
 	KeyValueStore map[KeyID][]byte
 
 	RoutingTable [256][20]RoutingEntry
+
+	Dispatcher Dispatcher
 }
 
 // The initialize function assigns a random NodeID to the

@@ -4,9 +4,9 @@ import (
 	"github.com/gsergey418alt/akademi/core"
 )
 
-// ListenerAdapter is an interface that enables connection
+// RPCListenerAdapter is an interface that enables connection
 // of the core logic to the Listener.
-type ListenerAdapter interface {
+type RPCListenerAdapter interface {
 	Ping(args struct{}, reply *PingRPCResponse) error
 	FindNode(args struct{ nodeID core.NodeID }, reply *FindNodeRPCResponse) error
 	FindKey(args struct{ keyID core.KeyID }, reply *FindKeyRPCResponse) error

@@ -2,15 +2,6 @@ package dispatcher
 
 import "github.com/gsergey418alt/akademi/core"
 
-// The Dispatcher interface is responsible for dispatching
-// RPC requests to other nodes in the network.
-type Dispatcher interface {
-	Ping(addr string) error
-	FindNode(addr string, nodeID core.NodeID) ([]core.RoutingEntry, error)
-	FindKey(addr string, keyID core.KeyID) (core.KeyID, []core.RoutingEntry, error)
-	Store(addr string, keyID core.KeyID, value core.DataBytes) error
-})
-
 // RPCDispatcher is an implementation of the Dispatcher
 // interface that interacts with other peers through HTTP
 // RPC.
@@ -22,7 +13,7 @@ func (d *RPCDispatcher) Ping(addr string) error {
 	panic("Function	Ping not implemented.")
 }
 
-// The FindNode function dispatches a FindNode RPC to a 
+// The FindNode function dispatches a FindNode RPC to a
 // node at the address addr.
 func (d *RPCDispatcher) FindNode(addr string, nodeID core.NodeID) ([]core.RoutingEntry, error) {
 	panic("Function	FindNode not implemented.")
@@ -30,7 +21,7 @@ func (d *RPCDispatcher) FindNode(addr string, nodeID core.NodeID) ([]core.Routin
 
 // The FindKey function dispatches a FindKey RPC to a node
 // at the address addr.
-func (d *RPCDispatcher) FindKey(addr string, keyID core.KeyID) error {
+func (d *RPCDispatcher) FindKey(addr string, keyID core.KeyID) (core.KeyID, []core.RoutingEntry, error) {
 	panic("Function	FindKey not implemented.")
 }
 
