@@ -1,15 +1,17 @@
 package core
 
 import (
-	"crypto/rand"
+	crand "crypto/rand"
 	"log"
 	"math/bits"
+	mrand "math/rand"
+	"time"
 )
 
 // List of bootstrap nodes used for first connecting to
 // the network.
 var BootstrapHosts = [...]string{
-	"akademi_bootstrap:3306",
+	"akademi_bootstrap:3856",
 }
 
 // Akademi uses 256-bit node and key IDs.
@@ -41,10 +43,16 @@ type AkademiNode struct {
 // The initialize function assigns a random NodeID to the
 // AkademiNode.
 func (a *AkademiNode) Initialize() {
-	_, err := rand.Read(a.NodeID[:])
+	_, err := crand.Read(a.NodeID[:])
 	if err != nil {
 		log.Fatal(err)
 	}
+	i := mrand.Intn(len(BootstrapHosts))
+	var nodeID NodeID
+	for nodeID, err = a.Dispatcher.Ping(BootstrapHosts[i]); err != nil; {
+		time.Sleep(60)
+	}
+	log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID:", nodeID)
 }
 
 // The function GetPrefixLength finds the length of the

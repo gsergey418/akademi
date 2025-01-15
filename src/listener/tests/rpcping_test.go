@@ -18,6 +18,7 @@ func TestMain(m *testing.M) {
 	fmt.Print("Connecting to RPC at ", listenAddr, ".\n")
 	var err error
 	client, err = rpc.DialHTTP("tcp", listenAddr)
+	defer client.Close()
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
@@ -26,7 +27,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestRPCPing(t *testing.T) {
-	args, reply := struct{}{}, struct{ listener.RPCResponse }{}
+	args, reply := struct{}{}, listener.PingRPCResponse{}
 	err := client.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
 	if err != nil {
 		fmt.Println(err)

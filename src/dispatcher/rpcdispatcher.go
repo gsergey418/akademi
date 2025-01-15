@@ -1,32 +1,52 @@
 package dispatcher
 
-import "github.com/gsergey418alt/akademi/core"
+import (
+	"log"
+	"net/rpc"
+
+	"github.com/gsergey418alt/akademi/core"
+)
 
 // RPCDispatcher is an implementation of the Dispatcher
 // interface that interacts with other peers through HTTP
 // RPC.
 type RPCDispatcher struct{}
 
+func (d *RPCDispatcher) DispatchRPCCall(addr string, f func(*rpc.Client)) {
+	log.Print("Connecting to RPC at ", addr, ".\n")
+	client, err := rpc.DialHTTP("tcp", addr)
+	defer client.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	f(client)
+}
+
 // The Ping function dispatches a Ping RPC to a node at the
 // address addr.
-func (d *RPCDispatcher) Ping(addr string) error {
-	panic("Function	Ping not implemented.")
+func (d *RPCDispatcher) Ping(addr string) (core.NodeID, error) {
+	args, reply := struct{}{}, struct{ NodeID core.NodeID }{}
+	var err error
+	d.DispatchRPCCall(addr, func(c *rpc.Client) {
+		err = c.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
+	})
+	return reply.NodeID, err
 }
 
 // The FindNode function dispatches a FindNode RPC to a
 // node at the address addr.
-func (d *RPCDispatcher) FindNode(addr string, nodeID core.NodeID) ([]core.RoutingEntry, error) {
+func (d *RPCDispatcher) FindNode(addr string, nodeID core.NodeID) (core.NodeID, []core.RoutingEntry, error) {
 	panic("Function	FindNode not implemented.")
 }
 
 // The FindKey function dispatches a FindKey RPC to a node
 // at the address addr.
-func (d *RPCDispatcher) FindKey(addr string, keyID core.KeyID) (core.KeyID, []core.RoutingEntry, error) {
+func (d *RPCDispatcher) FindKey(addr string, keyID core.KeyID) (core.NodeID, core.KeyID, []core.RoutingEntry, error) {
 	panic("Function	FindKey not implemented.")
 }
 
 // The Store function dispatches a Store RPC to a node at
 // the address addr.
-func (d *RPCDispatcher) Store(addr string, keyID core.KeyID, value core.DataBytes) error {
+func (d *RPCDispatcher) Store(addr string, keyID core.KeyID, value core.DataBytes) (core.NodeID, error) {
 	panic("Function	Store not implemented.")
 }
