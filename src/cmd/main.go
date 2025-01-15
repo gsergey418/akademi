@@ -24,7 +24,7 @@ func getAkademiNode() *core.AkademiNode {
 
 func getListener() Listener {
 	l := &listener.RPCListener{}
-	l.Initialize()
+	l.Initialize(getAkademiNode())
 	return l
 }
 

@@ -4,6 +4,8 @@ import (
 	"net"
 	"net/http"
 	"net/rpc"
+
+	"github.com/gsergey418alt/akademi/core"
 )
 
 // RPCListener is an implementation of the listener
@@ -15,8 +17,8 @@ type RPCListener struct {
 
 // The Initialize method on RPCListener assigns an
 // RPCAdapter to it.
-func (rl *RPCListener) Initialize() {
-	rl.RPCAdapter = &AkademiNodeRPCAdapter{}
+func (rl *RPCListener) Initialize(a *core.AkademiNode) {
+	rl.RPCAdapter = &AkademiNodeRPCAdapter{AkademiNode: a}
 }
 
 // The Listen subroutine opens a HTTP RPC socket on the
