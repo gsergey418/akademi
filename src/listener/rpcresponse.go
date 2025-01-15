@@ -15,7 +15,7 @@ type PingRPCResponse struct {
 // FindNodeRPCResponse is a response structure for the FindNode RPC.
 type FindNodeRPCResponse struct {
 	RPCResponse
-	routingEntry *[]core.RoutingEntry
+	routingEntry []core.RoutingEntry
 }
 
 // FindKeyRPCResponse is a response structure for the FindKey RPC.
