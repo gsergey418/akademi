@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	listenAddr = "127.0.0.1:3856"
+	listenAddr = "0.0.0.0:3856"
 )
 
 func getDispatcher() core.Dispatcher {
