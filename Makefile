@@ -1,28 +1,35 @@
+GC ::= go
+
+DOCKER_CMD ::= docker
+DOCKER_NETWORK ::= akademi
+DOCKER_PREFIX ::= akademi_
+SWARM_PEERS ::= 10
+
 akademi:
-	cd src/cmd && go build -o ../../akademi .
+	cd src/cmd && ${GC} build -o ../../akademi .
 
 .PHONY: docker_image
 docker_image: akademi
-	docker build -t akademi .
+	${DOCKER_CMD} build -t akademi .
 
 .PHONY: docker_clean
 docker_clean:
-	docker rmi akademi
+	${DOCKER_CMD} rmi akademi
 
 .PHONY: swarm_start
 swarm_start: docker_image
-	docker ps -a | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} docker stop {}
-	docker network ls | grep akademi || docker network create akademi
+	${DOCKER_CMD} ps -a | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
+	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} || ${DOCKER_CMD} network create ${DOCKER_NETWORK}
 
-	docker run --rm -d --network=akademi --name akademi_bootstrap -p 3856:3856 akademi
-	for i in $$(seq 10); do\
-		docker run --rm -d --network=akademi --name akademi_$$i akademi;\
+	${DOCKER_CMD} run --rm -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}bootstrap -p 3856:3856 akademi
+	for i in $$(seq ${SWARM_PEERS}); do\
+		${DOCKER_CMD} run --rm -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi;\
 	done
 
 .PHONY: swarm_stop
 swarm_stop:
-	docker ps -a | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} docker stop {}
-	docker network ls | grep akademi && docker network rm akademi || return 0
+	${DOCKER_CMD} ps -a | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
+	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} && ${DOCKER_CMD} network rm ${DOCKER_NETWORK} || return 0
 
 .PHONY: clean
 clean:

@@ -5,6 +5,12 @@ import (
 	"log"
 )
 
+// List of bootstrap nodes used for first connecting to
+// the network.
+var BootstrapHosts = [...]string{
+	"akademi_bootstrap:3306",
+}
+
 // Akademi uses 256-bit node and key IDs.
 type NodeID [32]byte
 type KeyID [32]byte
@@ -16,9 +22,8 @@ type DataBytes []byte
 // RoutingEntry is a structure that stores routing
 // information about an akademi node.
 type RoutingEntry struct {
-	IPAddress string
-	IPPort    uint8
-	NodeID    NodeID
+	Host   string
+	NodeID NodeID
 }
 
 // AkademiNode is a structure containing the core kademlia
