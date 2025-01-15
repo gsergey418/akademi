@@ -3,6 +3,7 @@ package core
 import (
 	"crypto/rand"
 	"log"
+	"math/bits"
 )
 
 // List of bootstrap nodes used for first connecting to
@@ -44,4 +45,16 @@ func (a *AkademiNode) Initialize() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// The function GetPrefixLength finds the length of the
+// common prefix between two 256-bit Node/Key IDs.
+func (a *AkademiNode) GetPrefixLength(id0, id1 [32]byte) int {
+	for i := 0; i < 32; i++ {
+		xor := id0[i] ^ id1[i]
+		if xor != 0 {
+			return i*8 + bits.LeadingZeros8(xor)
+		}
+	}
+	return 0
 }
