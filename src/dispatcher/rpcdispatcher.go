@@ -16,11 +16,12 @@ type RPCDispatcher struct{}
 func (d *RPCDispatcher) DispatchRPCCall(addr string, f func(*rpc.Client) error) error {
 	log.Print("Connecting to RPC at ", addr, ".\n")
 	client, err := rpc.DialHTTP("tcp", addr)
-	defer client.Close()
 	if err != nil {
 		return err
 	}
-	return f(client)
+	defer client.Close()
+	err = f(client)
+	return err
 }
 
 // The Ping function dispatches a Ping RPC to a node at the
