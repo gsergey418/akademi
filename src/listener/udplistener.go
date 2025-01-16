@@ -5,6 +5,8 @@ import (
 	"net"
 
 	"github.com/gsergey418alt/akademi/core"
+	"github.com/gsergey418alt/akademi/pb"
+	"google.golang.org/protobuf/proto"
 )
 
 // The UDPListener struct receives protocol buffers
@@ -47,7 +49,12 @@ func (u *UDPListener) Listen() error {
 }
 
 // Handle a slice of bytes as a UDP message
-func (u *UDPListener) handleUDPMessage(msg []byte) error {
+func (u *UDPListener) handleUDPMessage(buf []byte) error {
+	msg := &pb.BaseMessage{}
+	err := proto.Unmarshal(buf, msg)
+	if err != nil {
+		log.Print(err)
+	}
 	log.Print(msg)
 	return nil
 }

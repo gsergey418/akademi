@@ -7,8 +7,11 @@ SWARM_PEERS ::= 10
 
 .PHONY: docker, docker_clean, swarm, swarm_stop, clean, cleanall
 
-akademi:
+akademi: pb
 	cd src/cmd && ${GC} build -o ../../akademi .
+
+pb:
+	protoc --go_out=src/ src/pb/message.proto
 
 docker: akademi
 	${DOCKER_CMD} build -t akademi:latest .
