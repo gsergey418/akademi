@@ -12,23 +12,22 @@ import (
 // RPC.
 type RPCDispatcher struct{}
 
-func (d *RPCDispatcher) DispatchRPCCall(addr string, f func(*rpc.Client)) {
+func (d *RPCDispatcher) DispatchRPCCall(addr string, f func(*rpc.Client) error) error {
 	log.Print("Connecting to RPC at ", addr, ".\n")
 	client, err := rpc.DialHTTP("tcp", addr)
 	defer client.Close()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	f(client)
+	return f(client)
 }
 
 // The Ping function dispatches a Ping RPC to a node at the
 // address addr.
 func (d *RPCDispatcher) Ping(addr string) (core.NodeID, error) {
-	args, reply := struct{}{}, struct{ NodeID core.NodeID }{}
-	var err error
-	d.DispatchRPCCall(addr, func(c *rpc.Client) {
-		err = c.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
+	args, reply := struct{}{}, PingRPCResponse{}
+	err := d.DispatchRPCCall(addr, func(c *rpc.Client) error {
+		return c.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
 	})
 	return reply.NodeID, err
 }
