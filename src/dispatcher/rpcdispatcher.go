@@ -43,6 +43,7 @@ func (d *RPCDispatcher) PopulateRPCRequest(r *akademiRPC.BaseRPCRequest) {
 // address dispatchAddr.
 func (d *RPCDispatcher) Ping(dispatchAddr core.ListenAddr) (core.BaseID, error) {
 	args, reply := akademiRPC.PingRequest{}, akademiRPC.PingResponse{}
+	d.PopulateRPCRequest(&args.BaseRPCRequest)
 	err := d.DispatchRPCCall(dispatchAddr, func(c *rpc.Client) error {
 		return c.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
 	})
