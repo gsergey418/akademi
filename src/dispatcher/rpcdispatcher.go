@@ -26,7 +26,7 @@ func (d *RPCDispatcher) DispatchRPCCall(addr string, f func(*rpc.Client) error) 
 
 // The Ping function dispatches a Ping RPC to a node at the
 // address addr.
-func (d *RPCDispatcher) Ping(addr string) (core.NodeID, error) {
+func (d *RPCDispatcher) Ping(addr string) (core.BaseID, error) {
 	args, reply := struct{}{}, akademiRPC.PingRPCResponse{}
 	err := d.DispatchRPCCall(addr, func(c *rpc.Client) error {
 		return c.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
@@ -36,18 +36,18 @@ func (d *RPCDispatcher) Ping(addr string) (core.NodeID, error) {
 
 // The FindNode function dispatches a FindNode RPC to a
 // node at the address addr.
-func (d *RPCDispatcher) FindNode(addr string, nodeID core.NodeID) (core.NodeID, []core.RoutingEntry, error) {
+func (d *RPCDispatcher) FindNode(addr string, nodeID core.BaseID) (core.BaseID, []core.RoutingEntry, error) {
 	panic("Function	FindNode not implemented.")
 }
 
 // The FindKey function dispatches a FindKey RPC to a node
 // at the address addr.
-func (d *RPCDispatcher) FindKey(addr string, keyID core.KeyID) (core.NodeID, core.KeyID, []core.RoutingEntry, error) {
+func (d *RPCDispatcher) FindKey(addr string, keyID core.BaseID) (core.BaseID, core.BaseID, []core.RoutingEntry, error) {
 	panic("Function	FindKey not implemented.")
 }
 
 // The Store function dispatches a Store RPC to a node at
 // the address addr.
-func (d *RPCDispatcher) Store(addr string, keyID core.KeyID, value core.DataBytes) (core.NodeID, error) {
+func (d *RPCDispatcher) Store(addr string, keyID core.BaseID, value core.DataBytes) (core.BaseID, error) {
 	panic("Function	Store not implemented.")
 }

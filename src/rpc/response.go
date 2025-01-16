@@ -4,7 +4,7 @@ import "github.com/gsergey418alt/akademi/core"
 
 // BaseRPCResponse is a structure embedded in all RPC responses of Akademi.
 type BaseRPCResponse struct {
-	NodeID core.NodeID
+	NodeID core.BaseID
 }
 
 // PingRPCResponse is a response structure for the Ping RPC.
@@ -21,7 +21,7 @@ type FindNodeRPCResponse struct {
 // FindKeyRPCResponse is a response structure for the FindKey RPC.
 type FindKeyRPCResponse struct {
 	BaseRPCResponse
-	keyID        core.KeyID
+	keyID        core.BaseID
 	routingEntry []core.RoutingEntry
 }
 

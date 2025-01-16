@@ -16,20 +16,20 @@ type PingRequest struct {
 // RPC call.
 type FindNodeRequest struct {
 	BaseRPCRequest
-	nodeID core.NodeID
+	nodeID core.BaseID
 }
 
 // FindKeyRequest contains the arguments for the FindKey
 // RPC call.
 type FindKeyRequest struct {
 	BaseRPCRequest
-	keyID core.KeyID
+	keyID core.BaseID
 }
 
 // StoreRequest contains the arguments for the Store
 // RPC call.
 type StoreRequest struct {
 	BaseRPCRequest
-	keyID core.KeyID
+	keyID core.BaseID
 	data  core.DataBytes
 }
