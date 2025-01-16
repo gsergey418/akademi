@@ -42,17 +42,20 @@ type AkademiNode struct {
 
 // The initialize function assigns a random NodeID to the
 // AkademiNode.
-func (a *AkademiNode) Initialize() {
+func (a *AkademiNode) Initialize(bootstrap bool) {
 	_, err := crand.Read(a.NodeID[:])
 	if err != nil {
 		log.Fatal(err)
 	}
-	i := mrand.Intn(len(BootstrapHosts))
-	var nodeID NodeID
-	for nodeID, err = a.Dispatcher.Ping(BootstrapHosts[i]); err != nil; {
-		time.Sleep(60)
+	if bootstrap {
+		i := mrand.Intn(len(BootstrapHosts))
+		var nodeID NodeID
+		for nodeID, err = a.Dispatcher.Ping(BootstrapHosts[i]); err != nil; {
+			log.Print(err)
+			time.Sleep(5 * time.Second)
+		}
+		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID:", nodeID)
 	}
-	log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID:", nodeID)
 }
 
 // The function GetPrefixLength finds the length of the
