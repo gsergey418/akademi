@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	listenAddr = "0.0.0.0:3856"
+	listenAddr = "0.0.0.0:3865"
 )
 
 // getDispatcher returns an instance of the Dispatcher
@@ -18,15 +18,15 @@ func getDispatcher() core.Dispatcher {
 }
 
 // getAkademiNode creates and initializes an AkademiNode.
-func getAkademiNode(listenAddr core.ListenAddr, bootstrap bool) *core.AkademiNode {
+func getAkademiNode(listenPort core.IPPort, bootstrap bool) *core.AkademiNode {
 	a := &core.AkademiNode{}
-	a.Initialize(getDispatcher(), listenAddr, bootstrap)
+	a.Initialize(getDispatcher(), listenPort, bootstrap)
 	return a
 }
 
 // getListener creates an instance of the Listener
 // interface.
-func getListener(listenAddr core.ListenAddr, bootstrap bool) Listener {
+func getListener(listenAddr string, bootstrap bool) Listener {
 	panic("Function \"getListener\" not implemented")
 }
 
@@ -49,5 +49,5 @@ func main() {
 
 	l := getListener(listenAddr, parseArgs())
 
-	log.Fatal(l.Listen(listenAddr))
+	log.Fatal(l.Listen())
 }

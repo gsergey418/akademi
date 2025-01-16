@@ -10,16 +10,20 @@ import (
 
 // List of bootstrap nodes used for first connecting to
 // the network.
-var BootstrapHosts = [...]ListenAddr{
+var BootstrapHosts = [...]DispatchAddr{
 	"akademi_bootstrap:3856",
 }
 
 // Akademi uses 256-bit node and key IDs.
 type BaseID [32]byte
 
-// ListenAddress is used to identify node's IP address and
+// Separate IPPort type because the IP address is
+// identified by receiving node.
+type IPPort uint8
+
+// DispatchAddr is used to identify node's IP address and
 // port.
-type ListenAddr string
+type DispatchAddr string
 
 // DataBytes is a type for values to be stored in akademi
 // nodes.
@@ -28,14 +32,15 @@ type DataBytes []byte
 // RoutingEntry is a structure that stores routing
 // information about an akademi node.
 type RoutingEntry struct {
-	Host   ListenAddr
+	Host   DispatchAddr
 	NodeID BaseID
 }
 
 // AkademiNode is a structure containing the core kademlia
 // logic.
 type AkademiNode struct {
-	Self          RoutingEntry
+	NodeID        BaseID
+	ListenPort    IPPort
 	KeyValueStore map[BaseID][]byte
 
 	RoutingTable [256][20]RoutingEntry
@@ -45,14 +50,14 @@ type AkademiNode struct {
 
 // The initialize function assigns a random NodeID to the
 // AkademiNode.
-func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenAddr ListenAddr, bootstrap bool) {
-	a.Self.Host = listenAddr
-	_, err := crand.Read(a.Self.NodeID[:])
+func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, bootstrap bool) {
+	a.ListenPort = listenPort
+	_, err := crand.Read(a.NodeID[:])
 	if err != nil {
 		log.Fatal(err)
 	}
 	a.Dispatcher = dispatcher
-	a.Dispatcher.Initialize(&a.Self)
+	a.Dispatcher.Initialize(a.ListenPort)
 	if bootstrap {
 		i := mrand.Intn(len(BootstrapHosts))
 		var nodeID BaseID
