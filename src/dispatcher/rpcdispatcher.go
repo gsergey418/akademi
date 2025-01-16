@@ -5,6 +5,7 @@ import (
 	"net/rpc"
 
 	"github.com/gsergey418alt/akademi/core"
+	akademiRPC "github.com/gsergey418alt/akademi/rpc"
 )
 
 // RPCDispatcher is an implementation of the Dispatcher
@@ -25,7 +26,7 @@ func (d *RPCDispatcher) DispatchRPCCall(addr string, f func(*rpc.Client) error) 
 // The Ping function dispatches a Ping RPC to a node at the
 // address addr.
 func (d *RPCDispatcher) Ping(addr string) (core.NodeID, error) {
-	args, reply := struct{}{}, PingRPCResponse{}
+	args, reply := struct{}{}, akademiRPC.PingRPCResponse{}
 	err := d.DispatchRPCCall(addr, func(c *rpc.Client) error {
 		return c.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
 	})

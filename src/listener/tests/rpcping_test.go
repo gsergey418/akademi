@@ -5,7 +5,7 @@ import (
 	"net/rpc"
 	"testing"
 
-	"github.com/gsergey418alt/akademi/listener"
+	akademiRPC "github.com/gsergey418alt/akademi/rpc"
 )
 
 const (
@@ -27,7 +27,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestRPCPing(t *testing.T) {
-	args, reply := struct{}{}, listener.PingRPCResponse{}
+	args, reply := struct{}{}, akademiRPC.PingRPCResponse{}
 	err := client.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
 	if err != nil {
 		fmt.Println(err)

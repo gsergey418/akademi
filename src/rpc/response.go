@@ -1,4 +1,4 @@
-package dispatcher
+package rpc
 
 import "github.com/gsergey418alt/akademi/core"
 
