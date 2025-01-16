@@ -21,7 +21,7 @@ swarm: docker
 	${DOCKER_CMD} ps -a | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} || ${DOCKER_CMD} network create ${DOCKER_NETWORK}
 
-	${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}bootstrap -p 3856:3856 akademi
+	${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}bootstrap -p 3856:3856 akademi /bin/akademi --no-bootstrap
 	for i in $$(seq ${SWARM_PEERS}); do\
 		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi;\
 	done
