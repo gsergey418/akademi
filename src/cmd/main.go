@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/gsergey418alt/akademi/core"
-	"github.com/gsergey418alt/akademi/dispatcher"
-	"github.com/gsergey418alt/akademi/listener"
 )
 
 const (
@@ -16,7 +14,7 @@ const (
 // getDispatcher returns an instance of the Dispatcher
 // interface.
 func getDispatcher() core.Dispatcher {
-	return &dispatcher.RPCDispatcher{}
+	panic("Function \"getDispatcher\" not implemented")
 }
 
 // getAkademiNode creates and initializes an AkademiNode.
@@ -29,9 +27,7 @@ func getAkademiNode(listenAddr core.ListenAddr, bootstrap bool) *core.AkademiNod
 // getListener creates an instance of the Listener
 // interface.
 func getListener(listenAddr core.ListenAddr, bootstrap bool) Listener {
-	l := &listener.RPCListener{}
-	l.Initialize(getAkademiNode(listenAddr, bootstrap))
-	return l
+	panic("Function \"getListener\" not implemented")
 }
 
 // The function parseArgs is responsible for command line
