@@ -1,7 +1,7 @@
 package core
 
 // The Dispatcher interface is responsible for dispatching
-// RPC requests to other nodes in the network.
+// requests to other nodes in the network.
 type Dispatcher interface {
 	Initialize(self *RoutingEntry)
 	Ping(dispatchAddr ListenAddr) (BaseID, error)
