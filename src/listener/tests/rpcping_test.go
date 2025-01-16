@@ -27,14 +27,14 @@ func TestMain(m *testing.M) {
 }
 
 func TestRPCPing(t *testing.T) {
-	args, reply := struct{}{}, akademiRPC.PingRPCResponse{}
+	args, reply := struct{}{}, akademiRPC.PingResponse{}
 	err := client.Call("AkademiNodeRPCAdapter.Ping", args, &reply)
 	if err != nil {
 		fmt.Println(err)
 		t.Fail()
 	}
 	fmt.Print("Ping Success! NodeID: ")
-	for b := range reply.NodeID {
+	for b := range reply.Self.NodeID {
 		fmt.Printf("%08b", b)
 	}
 	fmt.Println()

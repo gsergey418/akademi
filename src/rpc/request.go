@@ -4,7 +4,9 @@ import "github.com/gsergey418alt/akademi/core"
 
 // BaseRPCRequest contains the base arguments for RPC calls
 // sent out by nodes.
-type BaseRPCRequest struct{}
+type BaseRPCRequest struct {
+	Self core.RoutingEntry
+}
 
 // PingRequest contains the arguments for the Ping
 // RPC call.

@@ -11,14 +11,14 @@ akademi:
 	cd src/cmd && ${GC} build -o ../../akademi .
 
 docker: akademi
-	${DOCKER_CMD} build -t akademi .
+	${DOCKER_CMD} build -t akademi:latest .
 
 docker_clean:
 	${DOCKER_CMD} rmi akademi
 
 swarm: docker
-	${DOCKER_CMD} ps | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
-	${DOCKER_CMD} ps -a | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
+	${DOCKER_CMD} ps | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
+	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} || ${DOCKER_CMD} network create ${DOCKER_NETWORK}
 
 	${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}bootstrap -p 3856:3856 akademi /bin/akademi --no-bootstrap
@@ -27,11 +27,11 @@ swarm: docker
 	done
 
 swarm_stop:
-	${DOCKER_CMD} ps -a | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
-	${DOCKER_CMD} ps -a | awk '{ print $$1,$$2 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
+	${DOCKER_CMD} ps | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
+	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} && ${DOCKER_CMD} network rm ${DOCKER_NETWORK} || return 0
 
-cleanall: swarm_stop, docker_clean, clean
+cleanall: swarm_stop docker_clean clean
 
 clean:
 	rm -f akademi

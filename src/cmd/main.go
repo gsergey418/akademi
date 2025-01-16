@@ -20,17 +20,17 @@ func getDispatcher() core.Dispatcher {
 }
 
 // getAkademiNode creates and initializes an AkademiNode.
-func getAkademiNode(bootstrap bool) *core.AkademiNode {
-	a := &core.AkademiNode{Dispatcher: getDispatcher()}
-	a.Initialize(bootstrap)
+func getAkademiNode(listenAddr core.ListenAddr, bootstrap bool) *core.AkademiNode {
+	a := &core.AkademiNode{}
+	a.Initialize(getDispatcher(), listenAddr, bootstrap)
 	return a
 }
 
 // getListener creates an instance of the Listener
 // interface.
-func getListener(bootstrap bool) Listener {
+func getListener(listenAddr core.ListenAddr, bootstrap bool) Listener {
 	l := &listener.RPCListener{}
-	l.Initialize(getAkademiNode(bootstrap))
+	l.Initialize(getAkademiNode(listenAddr, bootstrap))
 	return l
 }
 
@@ -51,7 +51,7 @@ func parseArgs() (bootstrap bool) {
 func main() {
 	log.Print("Starting Kademlia DHT node on address ", listenAddr)
 
-	l := getListener(parseArgs())
+	l := getListener(listenAddr, parseArgs())
 
 	log.Fatal(l.Listen(listenAddr))
 }

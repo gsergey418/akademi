@@ -2,30 +2,30 @@ package rpc
 
 import "github.com/gsergey418alt/akademi/core"
 
-// BaseRPCResponse is a structure embedded in all RPC responses of Akademi.
-type BaseRPCResponse struct {
-	NodeID core.BaseID
+// BaseResponse is a structure embedded in all RPC responses of Akademi.
+type BaseResponse struct {
+	Self core.RoutingEntry
 }
 
-// PingRPCResponse is a response structure for the Ping RPC.
-type PingRPCResponse struct {
-	BaseRPCResponse
+// PingResponse is a response structure for the Ping RPC.
+type PingResponse struct {
+	BaseResponse
 }
 
-// FindNodeRPCResponse is a response structure for the FindNode RPC.
-type FindNodeRPCResponse struct {
-	BaseRPCResponse
+// FindNodeResponse is a response structure for the FindNode RPC.
+type FindNodeResponse struct {
+	BaseResponse
 	routingEntry []core.RoutingEntry
 }
 
-// FindKeyRPCResponse is a response structure for the FindKey RPC.
-type FindKeyRPCResponse struct {
-	BaseRPCResponse
+// FindKeyResponse is a response structure for the FindKey RPC.
+type FindKeyResponse struct {
+	BaseResponse
 	keyID        core.BaseID
 	routingEntry []core.RoutingEntry
 }
 
-// StoreRPCResponse is a response structure for the Store RPC.
-type StoreRPCResponse struct {
-	BaseRPCResponse
+// StoreResponse is a response structure for the Store RPC.
+type StoreResponse struct {
+	BaseResponse
 }
