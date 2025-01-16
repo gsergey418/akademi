@@ -14,7 +14,7 @@ docker: akademi
 	${DOCKER_CMD} build -t akademi:latest .
 
 docker_clean:
-	${DOCKER_CMD} rmi akademi
+	${DOCKER_CMD} rmi akademi || exit 0
 
 swarm: docker
 	${DOCKER_CMD} ps | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
@@ -29,7 +29,7 @@ swarm: docker
 swarm_stop:
 	${DOCKER_CMD} ps | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
 	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
-	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} && ${DOCKER_CMD} network rm ${DOCKER_NETWORK} || return 0
+	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} && ${DOCKER_CMD} network rm ${DOCKER_NETWORK} || exit 0
 
 cleanall: swarm_stop docker_clean clean
 
