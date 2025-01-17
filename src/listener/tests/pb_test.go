@@ -5,6 +5,7 @@ import (
 	"net"
 	"testing"
 
+	"github.com/gsergey418alt/akademi/core"
 	"github.com/gsergey418alt/akademi/pb"
 	"google.golang.org/protobuf/proto"
 )
@@ -18,10 +19,10 @@ func TestProtobuf(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	msg := &pb.BaseMessage{}
-	msg.Message = &pb.BaseMessage_PingRequest{}
-	fmt.Println(msg)
-	data, err := proto.Marshal(msg)
+	req := &pb.BaseMessage{}
+	req.Message = &pb.BaseMessage_PingRequest{}
+	fmt.Println(req)
+	data, err := proto.Marshal(req)
 	if err != nil {
 		panic(err)
 	}
@@ -36,5 +37,6 @@ func TestProtobuf(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(res)
+	nodeID := core.BaseID(res.NodeID)
+	fmt.Println("Received ping response. NodeID: ", nodeID.BinStr())
 }
