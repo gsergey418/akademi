@@ -53,13 +53,9 @@ type AkademiNode struct {
 // AkademiNode.
 func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, bootstrap bool) error {
 	a.ListenPort = listenPort
-	nodeID, err := RandomBaseID()
-	if err != nil {
-		return err
-	}
-	a.NodeID = nodeID
+	a.NodeID = RandomBaseID()
 	a.Dispatcher = dispatcher
-	err = a.Dispatcher.Initialize(BaseMessageHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
+	err := a.Dispatcher.Initialize(BaseMessageHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
 	if err != nil {
 		return err
 	}
@@ -97,8 +93,8 @@ func (id *BaseID) BinStr() string {
 }
 
 // Returns random BaseID.
-func RandomBaseID() (BaseID, error) {
+func RandomBaseID() BaseID {
 	var o BaseID
-	_, err := crand.Read(o[:])
-	return o, err
+	crand.Read(o[:])
+	return o
 }

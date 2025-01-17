@@ -1,6 +1,7 @@
 package dispatcher
 
 import (
+	"crypto/rand"
 	"log"
 	"net"
 
@@ -48,6 +49,7 @@ func (u *UDPDispatcher) dispatchUDPBytes(host core.Host, buf []byte) ([]byte, er
 // dispatchUDPMessage is a function that wraps around
 // dispatchUDPBytes, operating on pb.BaseMessage structs.
 func (u *UDPDispatcher) dispatchUDPMessage(host core.Host, msg *pb.BaseMessage) (*pb.BaseMessage, error) {
+	u.writeBaseMessageHeader(msg)
 	buf, err := proto.Marshal(msg)
 	if err != nil {
 		return nil, err
@@ -64,11 +66,20 @@ func (u *UDPDispatcher) dispatchUDPMessage(host core.Host, msg *pb.BaseMessage) 
 	return res, nil
 }
 
+// Parser for the BaseMessageHeader
 func (u *UDPDispatcher) parseBaseMessageHeader(msg *pb.BaseMessage) core.BaseMessageHeader {
 	return core.BaseMessageHeader{
 		NodeID:     core.BaseID(msg.NodeID),
 		ListenPort: core.IPPort(msg.ListenPort),
 	}
+}
+
+// Filler for the BaseMessageHeader
+func (u *UDPDispatcher) writeBaseMessageHeader(msg *pb.BaseMessage) {
+	msg.ListenPort = uint32(u.BaseMessageHeader.ListenPort)
+	rID := RandomRequestID()
+	msg.RequestID = rID[:]
+	msg.NodeID = u.BaseMessageHeader.NodeID[:]
 }
 
 // The Ping function dispatches a Ping RPC call to node
@@ -99,4 +110,11 @@ func (u *UDPDispatcher) FindKey(host core.Host, keyID core.BaseID) (core.BaseMes
 // located at host.
 func (u *UDPDispatcher) Store(host core.Host, keyID core.BaseID, value core.DataBytes) (core.BaseMessageHeader, error) {
 	panic("Function Store not implemented.")
+}
+
+// Returns random RequestID.
+func RandomRequestID() [32]byte {
+	var o [32]byte
+	rand.Read(o[:])
+	return o
 }
