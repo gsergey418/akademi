@@ -10,7 +10,7 @@ import (
 
 // List of bootstrap nodes used for first connecting to
 // the network.
-var BootstrapHosts = [...]DispatchAddr{
+var BootstrapHosts = [...]Host{
 	"akademi_bootstrap:3856",
 }
 
@@ -21,9 +21,9 @@ type BaseID [32]byte
 // identified by receiving node.
 type IPPort uint8
 
-// DispatchAddr is used to identify node's IP address and
+// Host is used to identify node's IP address and
 // port.
-type DispatchAddr string
+type Host string
 
 // DataBytes is a type for values to be stored in akademi
 // nodes.
@@ -32,7 +32,7 @@ type DataBytes []byte
 // RoutingEntry is a structure that stores routing
 // information about an akademi node.
 type RoutingEntry struct {
-	Host   DispatchAddr
+	Host   Host
 	NodeID BaseID
 }
 
@@ -57,7 +57,10 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 		log.Fatal(err)
 	}
 	a.Dispatcher = dispatcher
-	a.Dispatcher.Initialize(a.ListenPort)
+	err = a.Dispatcher.Initialize(a.ListenPort)
+	if err != nil {
+		log.Fatal(err)
+	}
 	if bootstrap {
 		i := mrand.Intn(len(BootstrapHosts))
 		var nodeID BaseID

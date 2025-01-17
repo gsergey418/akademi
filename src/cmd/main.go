@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gsergey418alt/akademi/core"
+	"github.com/gsergey418alt/akademi/dispatcher"
 	"github.com/gsergey418alt/akademi/listener"
 )
 
@@ -17,13 +18,13 @@ const (
 // getDispatcher returns an instance of the Dispatcher
 // interface.
 func getDispatcher() core.Dispatcher {
-	panic("Function \"getDispatcher\" not implemented")
+	return &dispatcher.UDPDispatcher{}
 }
 
 // getAkademiNode creates and initializes an AkademiNode.
 func getAkademiNode(listenPort core.IPPort, bootstrap bool) *core.AkademiNode {
 	a := &core.AkademiNode{}
-	// a.Initialize(getDispatcher(), listenPort, bootstrap)
+	a.Initialize(getDispatcher(), listenPort, bootstrap)
 	return a
 }
 
