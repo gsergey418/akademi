@@ -64,12 +64,12 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 	}
 	if bootstrap {
 		i := mrand.Intn(len(BootstrapHosts))
-		var nodeID BaseID
-		for nodeID, err = a.Dispatcher.Ping(BootstrapHosts[i]); err != nil; {
+		var header BaseMessageHeader
+		for header, err = a.Dispatcher.Ping(BootstrapHosts[i]); err != nil; {
 			log.Print(err)
 			time.Sleep(5 * time.Second)
 		}
-		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID:", nodeID)
+		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID:", header.NodeID)
 	}
 }
 

@@ -64,32 +64,39 @@ func (u *UDPDispatcher) dispatchUDPMessage(host core.Host, msg *pb.BaseMessage) 
 	return res, nil
 }
 
+func (u *UDPDispatcher) parseBaseMessageHeader(msg *pb.BaseMessage) core.BaseMessageHeader {
+	return core.BaseMessageHeader{
+		NodeID:     core.BaseID(msg.NodeID),
+		ListenPort: core.IPPort(msg.ListenPort),
+	}
+}
+
 // The Ping function dispatches a Ping RPC call to node
 // located at host.
-func (u *UDPDispatcher) Ping(host core.Host) (core.BaseID, error) {
+func (u *UDPDispatcher) Ping(host core.Host) (core.BaseMessageHeader, error) {
 	msg := &pb.BaseMessage{}
 	msg.Message = &pb.BaseMessage_PingRequest{}
 	res, err := u.dispatchUDPMessage(host, msg)
 	if err != nil {
-		return core.BaseID{}, err
+		return core.BaseMessageHeader{}, err
 	}
-	return core.BaseID(res.NodeID), nil
+	return u.parseBaseMessageHeader(res), nil
 }
 
 // The FindNode function dispatches a FindNode RPC call
 // to node located at host.
-func (u *UDPDispatcher) FindNode(host core.Host, nodeID core.BaseID) (core.BaseID, []core.RoutingEntry, error) {
+func (u *UDPDispatcher) FindNode(host core.Host, nodeID core.BaseID) (core.BaseMessageHeader, []core.RoutingEntry, error) {
 	panic("Function FindNode not implemented.")
 }
 
 // The FindKey function dispatches a FindKey RPC call to
 // node located at host.
-func (u *UDPDispatcher) FindKey(host core.Host, keyID core.BaseID) (core.BaseID, core.BaseID, []core.RoutingEntry, error) {
+func (u *UDPDispatcher) FindKey(host core.Host, keyID core.BaseID) (core.BaseMessageHeader, core.BaseID, []core.RoutingEntry, error) {
 	panic("Function FindKey not implemented.")
 }
 
 // The Store function dispatches a Store RPC call to node
 // located at host.
-func (u *UDPDispatcher) Store(host core.Host, keyID core.BaseID, value core.DataBytes) (core.BaseID, error) {
+func (u *UDPDispatcher) Store(host core.Host, keyID core.BaseID, value core.DataBytes) (core.BaseMessageHeader, error) {
 	panic("Function Store not implemented.")
 }

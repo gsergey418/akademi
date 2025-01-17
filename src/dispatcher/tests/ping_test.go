@@ -11,9 +11,9 @@ import (
 func TestPing(t *testing.T) {
 	d := &dispatcher.UDPDispatcher{}
 	d.Initialize(core.IPPort(3865))
-	nodeID, err := d.Ping(core.Host("127.0.0.1:3865"))
+	header, err := d.Ping(core.Host("127.0.0.1:3865"))
 	if err != nil {
 		panic(err)
 	}
-	log.Print("NodeID: ", nodeID.BinStr())
+	log.Print("NodeID: ", header.NodeID.BinStr())
 }
