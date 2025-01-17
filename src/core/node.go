@@ -19,7 +19,7 @@ type BaseID [32]byte
 
 // Separate IPPort type because the IP address is
 // identified by receiving node.
-type IPPort uint8
+type IPPort uint16
 
 // Host is used to identify node's IP address and
 // port.

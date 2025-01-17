@@ -1,7 +1,12 @@
 package dispatcher
 
 import (
+	"log"
+	"net"
+
 	"github.com/gsergey418alt/akademi/core"
+	"github.com/gsergey418alt/akademi/pb"
+	"google.golang.org/protobuf/proto"
 )
 
 // UDPDispatcher is an implementation of the dispatcher
@@ -18,10 +23,47 @@ func (u *UDPDispatcher) Initialize(listenPort core.IPPort) error {
 	return nil
 }
 
+// dispatchUDPMessage is a wrapper function that manages the
+// UDP connection.
+func (u *UDPDispatcher) dispatchUDPMessage(host core.Host, buf []byte) ([]byte, error) {
+	conn, err := net.Dial("udp", string(host))
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	log.Print("Dispatching request to ", host, ": ", len(buf), " bytes.")
+	_, err = conn.Write(buf)
+	if err != nil {
+		return nil, err
+	}
+	var udpReadBuffer [65535]byte
+	l, err := conn.Read(udpReadBuffer[:])
+	if err != nil {
+		return nil, err
+	}
+	log.Print("Response from ", host, ": ", l, " bytes.")
+	return udpReadBuffer[:l], nil
+}
+
 // The Ping function dispatches a Ping RPC call to node
 // located at host.
 func (u *UDPDispatcher) Ping(host core.Host) (core.BaseID, error) {
-	panic("Function Ping not implemented.")
+	msg := &pb.BaseMessage{}
+	msg.Message = &pb.BaseMessage_PingRequest{}
+	buf, err := proto.Marshal(msg)
+	if err != nil {
+		return core.BaseID{}, err
+	}
+	resBytes, err := u.dispatchUDPMessage(host, buf)
+	if err != nil {
+		return core.BaseID{}, err
+	}
+	res := &pb.BaseMessage{}
+	err = proto.Unmarshal(resBytes, res)
+	if err != nil {
+		return core.BaseID{}, err
+	}
+	return core.BaseID(res.NodeID), nil
 }
 
 // The FindNode function dispatches a FindNode RPC call
