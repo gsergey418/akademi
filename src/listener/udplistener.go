@@ -52,30 +52,40 @@ func (u *UDPListener) Listen() error {
 
 // Sends bytes to remoteAddr over UDP.
 func (u *UDPListener) sendUDPResponse(remoteAddr *net.UDPAddr, buf []byte) error {
+	log.Print("Writing response to ", remoteAddr, ": ", len(buf), " bytes.")
 	_, err := u.udpConn.WriteTo(buf, remoteAddr)
 	return err
 }
 
-// Handle a slice of bytes as a UDP message
-func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) error {
-	msg := &pb.BaseMessage{}
-	err := proto.Unmarshal(buf, msg)
-	if err != nil {
-		log.Print(err)
-	}
+// Multiplexer for the BaseMessage type.
+func (u *UDPListener) msgMux(remoteAddr *net.UDPAddr, msg *pb.BaseMessage) error {
 	switch {
 	case msg.GetPingRequest() != nil:
 		res := &pb.BaseMessage{}
 		res.Message = &pb.BaseMessage_PingResponse{}
 		resBytes, err := proto.Marshal(res)
 		if err != nil {
-			log.Print(err)
+			return err
 		}
 		err = u.sendUDPResponse(remoteAddr, resBytes)
 		if err != nil {
-			log.Print(err)
+			return &net.AddrError{}
 		}
 	}
-	log.Print("Message from ", remoteAddr, ": ", msg)
+	return nil
+}
+
+// Handle a slice of bytes as a UDP message
+func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) error {
+	log.Print("Message from ", remoteAddr, ": ", len(buf), " bytes.")
+	msg := &pb.BaseMessage{}
+	err := proto.Unmarshal(buf, msg)
+	if err != nil {
+		return err
+	}
+	err = u.msgMux(remoteAddr, msg)
+	if err != nil {
+		return err
+	}
 	return nil
 }

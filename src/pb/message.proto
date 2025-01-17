@@ -10,9 +10,44 @@ message BaseMessage {
     oneof Message {
         PingRequest PingRequest = 4;   
         PingResponse PingResponse = 5;
+        FindNodeRequest FindNodeRequest = 6;
+        FindNodeResponse FindNodeResponse = 7;
+        FindKeyRequest FindKeyRequest = 8;
+        FindKeyResponse FindKeyResponse = 9;
+        StoreRequest StoreRequest = 10;
+        StoreResponse StoreResponse = 11;
     }
+}
+
+message RoutingEntry {
+    string Address = 1;
+    bytes NodeID = 2;
 }
 
 message PingRequest {}
 
 message PingResponse {}
+
+message FindNodeRequest {
+    bytes NodeID = 1;
+}
+
+message FindNodeResponse {
+    repeated RoutingEntry RoutingEntry = 1;
+}
+
+message FindKeyRequest {
+    bytes KeyID = 1;
+}
+
+message FindKeyResponse {
+    bytes Value = 1;
+    repeated RoutingEntry RoutingEntry = 2;
+}
+
+message StoreRequest {
+    bytes KeyID = 1;
+    bytes Value = 2;
+}
+
+message StoreResponse {}
