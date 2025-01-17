@@ -37,11 +37,11 @@ func (u *UDPListener) Listen() error {
 	}
 
 	for {
-		l, err := conn.Read(u.udpReadBuffer[:])
+		l, remoteAddr, err := conn.ReadFromUDP(u.udpReadBuffer[:])
 		if err != nil {
 			log.Print(err)
 		}
-		err = u.handleUDPMessage(u.udpReadBuffer[:l])
+		err = u.handleUDPMessage(remoteAddr, u.udpReadBuffer[:l])
 		if err != nil {
 			log.Print(err)
 		}
@@ -49,12 +49,12 @@ func (u *UDPListener) Listen() error {
 }
 
 // Handle a slice of bytes as a UDP message
-func (u *UDPListener) handleUDPMessage(buf []byte) error {
+func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) error {
 	msg := &pb.BaseMessage{}
 	err := proto.Unmarshal(buf, msg)
 	if err != nil {
 		log.Print(err)
 	}
-	log.Print(msg)
+	log.Print("Message from ", remoteAddr, ": ", msg)
 	return nil
 }
