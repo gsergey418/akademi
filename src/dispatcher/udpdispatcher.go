@@ -1,6 +1,7 @@
 package dispatcher
 
 import (
+	"bytes"
 	"crypto/rand"
 	"log"
 	"net"
@@ -15,6 +16,14 @@ import (
 // messages.
 type UDPDispatcher struct {
 	BaseMessageHeader core.BaseMessageHeader
+}
+
+// Session error occurs when request and response RequestIDs
+// don't match.
+type SessionError struct{}
+
+func (s *SessionError) Error() string {
+	return "SessionError: Request and response RequestIDs don't match!"
 }
 
 // The Initialize functions sets the ListenPort of the
@@ -48,9 +57,9 @@ func (u *UDPDispatcher) dispatchUDPBytes(host core.Host, buf []byte) ([]byte, er
 
 // dispatchUDPMessage is a function that wraps around
 // dispatchUDPBytes, operating on pb.BaseMessage structs.
-func (u *UDPDispatcher) dispatchUDPMessage(host core.Host, msg *pb.BaseMessage) (*pb.BaseMessage, error) {
-	u.writeBaseMessageHeader(msg)
-	buf, err := proto.Marshal(msg)
+func (u *UDPDispatcher) dispatchUDPMessage(host core.Host, req *pb.BaseMessage) (*pb.BaseMessage, error) {
+	u.writeBaseMessageHeader(req)
+	buf, err := proto.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +71,9 @@ func (u *UDPDispatcher) dispatchUDPMessage(host core.Host, msg *pb.BaseMessage) 
 	err = proto.Unmarshal(resBytes, res)
 	if err != nil {
 		return nil, err
+	}
+	if bytes.Compare(res.RequestID, req.RequestID) != 0 {
+		return nil, &SessionError{}
 	}
 	return res, nil
 }
