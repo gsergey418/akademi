@@ -51,16 +51,17 @@ type AkademiNode struct {
 
 // The initialize function assigns a random NodeID to the
 // AkademiNode.
-func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, bootstrap bool) {
+func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, bootstrap bool) error {
 	a.ListenPort = listenPort
-	_, err := crand.Read(a.NodeID[:])
+	nodeID, err := RandomBaseID()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	a.NodeID = nodeID
 	a.Dispatcher = dispatcher
-	err = a.Dispatcher.Initialize(a.ListenPort)
+	err = a.Dispatcher.Initialize(BaseMessageHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if bootstrap {
 		i := mrand.Intn(len(BootstrapHosts))
@@ -71,6 +72,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 		}
 		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID:", header.NodeID)
 	}
+	return nil
 }
 
 // The function GetPrefixLength finds the length of the
@@ -92,4 +94,11 @@ func (id *BaseID) BinStr() string {
 		out = out + fmt.Sprintf("%08b", id[i])
 	}
 	return out
+}
+
+// Returns random BaseID.
+func RandomBaseID() (BaseID, error) {
+	var o BaseID
+	_, err := crand.Read(o[:])
+	return o, err
 }

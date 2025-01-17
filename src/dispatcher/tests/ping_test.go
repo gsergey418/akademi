@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"log"
+	"fmt"
 	"testing"
 
 	"github.com/gsergey418alt/akademi/core"
@@ -10,10 +10,14 @@ import (
 
 func TestPing(t *testing.T) {
 	d := &dispatcher.UDPDispatcher{}
-	d.Initialize(core.IPPort(3865))
+	nodeID, err := core.RandomBaseID()
+	if err != nil {
+		panic(err)
+	}
+	d.Initialize(core.BaseMessageHeader{NodeID: nodeID, ListenPort: core.IPPort(3865)})
 	header, err := d.Ping(core.Host("127.0.0.1:3865"))
 	if err != nil {
 		panic(err)
 	}
-	log.Print("NodeID: ", header.NodeID.BinStr())
+	fmt.Print("NodeID: ", header.NodeID.BinStr())
 }

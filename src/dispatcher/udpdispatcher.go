@@ -13,13 +13,13 @@ import (
 // interface that dispatches RPC calls over UDP protobuf
 // messages.
 type UDPDispatcher struct {
-	ListenPort core.IPPort
+	BaseMessageHeader core.BaseMessageHeader
 }
 
 // The Initialize functions sets the ListenPort of the
 // UDPDispatcher.
-func (u *UDPDispatcher) Initialize(listenPort core.IPPort) error {
-	u.ListenPort = listenPort
+func (u *UDPDispatcher) Initialize(h core.BaseMessageHeader) error {
+	u.BaseMessageHeader = h
 	return nil
 }
 

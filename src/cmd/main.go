@@ -24,7 +24,10 @@ func getDispatcher() core.Dispatcher {
 // getAkademiNode creates and initializes an AkademiNode.
 func getAkademiNode(listenPort core.IPPort, bootstrap bool) *core.AkademiNode {
 	a := &core.AkademiNode{}
-	a.Initialize(getDispatcher(), listenPort, bootstrap)
+	err := a.Initialize(getDispatcher(), listenPort, bootstrap)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return a
 }
 
