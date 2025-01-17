@@ -57,11 +57,19 @@ func (u *UDPListener) sendUDPResponse(remoteAddr *net.UDPAddr, buf []byte) error
 	return err
 }
 
+// Populates the default response protobuf
+func (u *UDPListener) populateDefaultResponse(res, req *pb.BaseMessage) {
+	res.RequestID = req.RequestID
+	res.ListenPort = uint32(u.ListenAddr.Port)
+	res.NodeID = u.AkademiNode.NodeID[:]
+}
+
 // Multiplexer for the BaseMessage type.
 func (u *UDPListener) msgMux(remoteAddr *net.UDPAddr, msg *pb.BaseMessage) error {
 	switch {
 	case msg.GetPingRequest() != nil:
 		res := &pb.BaseMessage{}
+		u.populateDefaultResponse(res, msg)
 		res.Message = &pb.BaseMessage_PingResponse{}
 		resBytes, err := proto.Marshal(res)
 		if err != nil {
