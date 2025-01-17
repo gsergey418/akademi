@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"net"
 	"testing"
 
@@ -18,7 +19,8 @@ func TestProtobuf(t *testing.T) {
 		panic(err)
 	}
 	msg := &pb.BaseMessage{}
-	msg.Content = "Hello, World!"
+	msg.Message = &pb.BaseMessage_PingRequest{}
+	fmt.Println(msg)
 	data, err := proto.Marshal(msg)
 	if err != nil {
 		panic(err)
@@ -27,4 +29,12 @@ func TestProtobuf(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	var buf [65535]byte
+	l, err := conn.Read(buf[:])
+	res := &pb.BaseMessage{}
+	err = proto.Unmarshal(buf[:l], res)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res)
 }

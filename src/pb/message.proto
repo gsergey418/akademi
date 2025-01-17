@@ -4,5 +4,15 @@ package pb;
 option go_package = "./pb";
 
 message BaseMessage {
-    string content = 1;
+    bytes RequestID = 1;
+    bytes NodeID = 2;
+    uint32 ListenPort = 3;
+    oneof Message {
+        PingRequest PingRequest = 4;   
+        PingResponse PingResponse = 5;
+    }
 }
+
+message PingRequest {}
+
+message PingResponse {}
