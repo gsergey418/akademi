@@ -51,9 +51,21 @@ func (u *UDPListener) Listen() error {
 }
 
 // Sends bytes to remoteAddr over UDP.
-func (u *UDPListener) sendUDPResponse(remoteAddr *net.UDPAddr, buf []byte) error {
+func (u *UDPListener) sendUDPBytes(remoteAddr *net.UDPAddr, buf []byte) error {
 	log.Print("Writing response to ", remoteAddr, ": ", len(buf), " bytes.")
 	_, err := u.udpConn.WriteTo(buf, remoteAddr)
+	return err
+}
+
+// Sends pb.BaseMessage to remoteAddr
+func (u *UDPListener) sendUDPMessage(remoteAddr *net.UDPAddr, res, req *pb.BaseMessage) error {
+	u.populateDefaultResponse(res, req)
+	res.Message = &pb.BaseMessage_PingResponse{}
+	resBytes, err := proto.Marshal(res)
+	if err != nil {
+		return err
+	}
+	err = u.sendUDPBytes(remoteAddr, resBytes)
 	return err
 }
 
@@ -65,20 +77,11 @@ func (u *UDPListener) populateDefaultResponse(res, req *pb.BaseMessage) {
 }
 
 // Multiplexer for the BaseMessage type.
-func (u *UDPListener) msgMux(remoteAddr *net.UDPAddr, msg *pb.BaseMessage) error {
+func (u *UDPListener) reqMux(remoteAddr *net.UDPAddr, req *pb.BaseMessage) error {
 	switch {
-	case msg.GetPingRequest() != nil:
+	case req.GetPingRequest() != nil:
 		res := &pb.BaseMessage{}
-		u.populateDefaultResponse(res, msg)
-		res.Message = &pb.BaseMessage_PingResponse{}
-		resBytes, err := proto.Marshal(res)
-		if err != nil {
-			return err
-		}
-		err = u.sendUDPResponse(remoteAddr, resBytes)
-		if err != nil {
-			return &net.AddrError{}
-		}
+		return u.sendUDPMessage(remoteAddr, res, req)
 	}
 	return nil
 }
@@ -86,12 +89,12 @@ func (u *UDPListener) msgMux(remoteAddr *net.UDPAddr, msg *pb.BaseMessage) error
 // Handle a slice of bytes as a UDP message
 func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) error {
 	log.Print("Message from ", remoteAddr, ": ", len(buf), " bytes.")
-	msg := &pb.BaseMessage{}
-	err := proto.Unmarshal(buf, msg)
+	req := &pb.BaseMessage{}
+	err := proto.Unmarshal(buf, req)
 	if err != nil {
 		return err
 	}
-	err = u.msgMux(remoteAddr, msg)
+	err = u.reqMux(remoteAddr, req)
 	if err != nil {
 		return err
 	}
