@@ -2,6 +2,7 @@ package core
 
 import (
 	crand "crypto/rand"
+	"fmt"
 	"log"
 	"math/bits"
 	mrand "math/rand"
@@ -82,4 +83,13 @@ func (id0 *BaseID) GetPrefixLength(id1 BaseID) int {
 		}
 	}
 	return 0
+}
+
+// Returns BaseID string in binary.
+func (id *BaseID) BinStr() string {
+	out := ""
+	for i := 0; i < 32; i++ {
+		out = out + fmt.Sprintf("%08b", id[i])
+	}
+	return out
 }

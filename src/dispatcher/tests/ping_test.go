@@ -15,5 +15,5 @@ func TestPing(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	log.Print(nodeID)
+	log.Print("NodeID: ", nodeID.BinStr())
 }
