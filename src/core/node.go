@@ -2,6 +2,7 @@ package core
 
 import (
 	crand "crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"math/bits"
@@ -9,14 +10,21 @@ import (
 	"time"
 )
 
+// AkademiNode constants.
+const (
+	IDLength   = 20
+	BucketSize = 20
+)
+
 // List of bootstrap nodes used for first connecting to
 // the network.
 var BootstrapHosts = [...]Host{
-	"akademi_bootstrap:3856",
+	"akademi_bootstrap:3865",
 }
 
-// Akademi uses 256-bit node and key IDs.
-type BaseID [32]byte
+// Akademi uses node and key IDs, whose length is defined
+// in bytes by IDLength.
+type BaseID [IDLength]byte
 
 // Separate IPPort type because the IP address is
 // identified by receiving node.
@@ -44,7 +52,7 @@ type AkademiNode struct {
 	ListenPort    IPPort
 	KeyValueStore map[BaseID][]byte
 
-	RoutingTable [256][20]RoutingEntry
+	RoutingTable [IDLength * 8][BucketSize]RoutingEntry
 
 	Dispatcher Dispatcher
 }
@@ -66,15 +74,15 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 			log.Print(err)
 			time.Sleep(5 * time.Second)
 		}
-		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID:", header.NodeID)
+		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID: ", header.NodeID.Base64Str())
 	}
 	return nil
 }
 
 // The function GetPrefixLength finds the length of the
-// common prefix between two 256-bit Node/Key IDs.
+// common prefix between two Node/Key IDs.
 func (id0 *BaseID) GetPrefixLength(id1 BaseID) int {
-	for i := 0; i < 32; i++ {
+	for i := 0; i < IDLength; i++ {
 		xor := id0[i] ^ id1[i]
 		if xor != 0 {
 			return i*8 + bits.LeadingZeros8(xor)
@@ -86,10 +94,15 @@ func (id0 *BaseID) GetPrefixLength(id1 BaseID) int {
 // Returns BaseID string in binary.
 func (id *BaseID) BinStr() string {
 	out := ""
-	for i := 0; i < 32; i++ {
+	for i := 0; i < IDLength; i++ {
 		out = out + fmt.Sprintf("%08b", id[i])
 	}
 	return out
+}
+
+// Returns base64 BaseID string.
+func (id *BaseID) Base64Str() string {
+	return base64.StdEncoding.EncodeToString(id[:])
 }
 
 // Returns random BaseID.

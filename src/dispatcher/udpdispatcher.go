@@ -11,6 +11,11 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+// Dispatcher constants
+const (
+	RequestIDLength = 32
+)
+
 // UDPDispatcher is an implementation of the dispatcher
 // interface that dispatches RPC calls over UDP protobuf
 // messages.
@@ -125,8 +130,8 @@ func (u *UDPDispatcher) Store(host core.Host, keyID core.BaseID, value core.Data
 }
 
 // Returns random RequestID.
-func RandomRequestID() [32]byte {
-	var o [32]byte
+func RandomRequestID() [RequestIDLength]byte {
+	var o [RequestIDLength]byte
 	rand.Read(o[:])
 	return o
 }

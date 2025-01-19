@@ -38,5 +38,5 @@ func TestProtobuf(t *testing.T) {
 		panic(err)
 	}
 	nodeID := core.BaseID(res.NodeID)
-	fmt.Println("Received ping response. NodeID: ", nodeID.BinStr())
+	fmt.Println("Received ping response. NodeID: ", nodeID.Base64Str())
 }
