@@ -21,7 +21,11 @@ func TestProtobuf(t *testing.T) {
 	}
 	req := &pb.BaseMessage{}
 	req.Message = &pb.BaseMessage_PingRequest{}
-	fmt.Println(req)
+	nodeID := core.RandomBaseID()
+	req.NodeID = []byte(nodeID[:])
+	req.ListenPort = 1337
+
+	fmt.Println("Sending ping message.")
 	data, err := proto.Marshal(req)
 	if err != nil {
 		panic(err)
@@ -30,6 +34,7 @@ func TestProtobuf(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+
 	var buf [65535]byte
 	l, err := conn.Read(buf[:])
 	res := &pb.BaseMessage{}
@@ -37,6 +42,6 @@ func TestProtobuf(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	nodeID := core.BaseID(res.NodeID)
+	nodeID = core.BaseID(res.NodeID)
 	fmt.Println("Received ping response. NodeID: ", nodeID.Base64Str())
 }

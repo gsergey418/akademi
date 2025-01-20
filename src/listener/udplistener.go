@@ -51,25 +51,6 @@ func (u *UDPListener) Listen() error {
 	}
 }
 
-// Sends bytes to remoteAddr over UDP.
-func (u *UDPListener) sendUDPBytes(remoteAddr *net.UDPAddr, buf []byte) error {
-	log.Print("Writing response to ", remoteAddr, ": ", len(buf), " bytes.")
-	_, err := u.udpConn.WriteTo(buf, remoteAddr)
-	return err
-}
-
-// Sends pb.BaseMessage to remoteAddr.
-func (u *UDPListener) sendUDPMessage(remoteAddr *net.UDPAddr, res, req *pb.BaseMessage) error {
-	u.populateDefaultResponse(res, req)
-	res.Message = &pb.BaseMessage_PingResponse{}
-	resBytes, err := proto.Marshal(res)
-	if err != nil {
-		return err
-	}
-	err = u.sendUDPBytes(remoteAddr, resBytes)
-	return err
-}
-
 // Populates the default response protobuf.
 func (u *UDPListener) populateDefaultResponse(res, req *pb.BaseMessage) {
 	res.RequestID = req.RequestID
