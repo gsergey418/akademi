@@ -59,6 +59,7 @@ type AkademiNode struct {
 func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, bootstrap bool) error {
 	a.ListenPort = listenPort
 	a.NodeID = RandomBaseID()
+	log.Print("Initialing Akademi node. NodeID: ", a.NodeID)
 	a.Dispatcher = dispatcher
 	err := a.Dispatcher.Initialize(RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
 	if err != nil {
@@ -78,6 +79,5 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 			log.Print(v)
 		}
 	}
-	log.Print("Initialized Akademi node. NodeID: ", a.NodeID)
 	return nil
 }
