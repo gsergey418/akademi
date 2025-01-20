@@ -20,7 +20,7 @@ type UDPListener struct {
 	udpConn       *net.UDPConn
 }
 
-// Parse listenAddrString and set AkademiNode
+// Parse listenAddrString and set AkademiNode.
 func (u *UDPListener) Initialize(listenAddrString string, a *core.AkademiNode) error {
 	listenAddr, err := net.ResolveUDPAddr("udp", listenAddrString)
 	if err != nil {
@@ -31,7 +31,7 @@ func (u *UDPListener) Initialize(listenAddrString string, a *core.AkademiNode) e
 	return nil
 }
 
-// Opens a UDP socket on UDPListener.ListenAddr
+// Opens a UDP socket on UDPListener.ListenAddr.
 func (u *UDPListener) Listen() error {
 	conn, err := net.ListenUDP("udp", u.ListenAddr)
 	u.udpConn = conn
@@ -58,7 +58,7 @@ func (u *UDPListener) sendUDPBytes(remoteAddr *net.UDPAddr, buf []byte) error {
 	return err
 }
 
-// Sends pb.BaseMessage to remoteAddr
+// Sends pb.BaseMessage to remoteAddr.
 func (u *UDPListener) sendUDPMessage(remoteAddr *net.UDPAddr, res, req *pb.BaseMessage) error {
 	u.populateDefaultResponse(res, req)
 	res.Message = &pb.BaseMessage_PingResponse{}
@@ -70,7 +70,7 @@ func (u *UDPListener) sendUDPMessage(remoteAddr *net.UDPAddr, res, req *pb.BaseM
 	return err
 }
 
-// Populates the default response protobuf
+// Populates the default response protobuf.
 func (u *UDPListener) populateDefaultResponse(res, req *pb.BaseMessage) {
 	res.RequestID = req.RequestID
 	res.ListenPort = uint32(u.ListenAddr.Port)
@@ -87,7 +87,7 @@ func (u *UDPListener) reqMux(remoteAddr *net.UDPAddr, req *pb.BaseMessage) error
 	return nil
 }
 
-// Handle a slice of bytes as a UDP message
+// Handle a slice of bytes as a UDP message.
 func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) error {
 	log.Print("Message from ", remoteAddr, ": ", len(buf), " bytes.")
 	req := &pb.BaseMessage{}

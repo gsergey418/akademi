@@ -57,7 +57,7 @@ type AkademiNode struct {
 	Dispatcher Dispatcher
 }
 
-// Update the routing table with a new entry
+// Update the routing table with a new entry.
 func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 	prefix := r.NodeID.GetPrefixLength(a.NodeID)
 	for i, v := range a.RoutingTable[prefix] {
@@ -95,7 +95,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 	return nil
 }
 
-// Print all the entries in the routing table
+// Print all the entries in the routing table.
 func (a *AkademiNode) PrintRoutingTable() {
 	fmt.Println("Node routing table:")
 	for _, bucket := range a.RoutingTable {
