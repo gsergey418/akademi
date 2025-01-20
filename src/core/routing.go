@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"log"
 )
 
 // Pretty-print RoutingEntry.
@@ -30,7 +31,17 @@ func (a *AkademiNode) PrintRoutingTable() {
 	fmt.Println("Node routing table:")
 	for _, bucket := range a.RoutingTable {
 		for _, r := range bucket {
-			fmt.Println(r.Host, r.NodeID)
+			fmt.Println(r)
+		}
+	}
+}
+
+// Log all the entries in the routing table.
+func (a *AkademiNode) LogRoutingTable() {
+	log.Print("Node routing table:")
+	for _, bucket := range a.RoutingTable {
+		for _, r := range bucket {
+			log.Print(r)
 		}
 	}
 }

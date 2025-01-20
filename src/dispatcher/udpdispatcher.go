@@ -61,7 +61,7 @@ func (u *UDPDispatcher) FindNode(host core.Host, nodeID core.BaseID) (core.Routi
 
 // The FindKey function dispatches a FindKey RPC call to
 // node located at host.
-func (u *UDPDispatcher) FindKey(host core.Host, keyID core.BaseID) (core.RoutingHeader, core.BaseID, []core.RoutingEntry, error) {
+func (u *UDPDispatcher) FindKey(host core.Host, keyID core.BaseID) (core.RoutingHeader, core.DataBytes, []core.RoutingEntry, error) {
 	panic("Function FindKey not implemented.")
 }
 

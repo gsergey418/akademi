@@ -60,16 +60,18 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 	a.ListenPort = listenPort
 	a.NodeID = RandomBaseID()
 	log.Print("Initialing Akademi node. NodeID: ", a.NodeID)
+
 	a.Dispatcher = dispatcher
 	err := a.Dispatcher.Initialize(RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
 	if err != nil {
 		return err
 	}
+
 	if bootstrap {
 		i := mrand.Intn(len(BootstrapHosts))
 		var header RoutingHeader
 		var nodes []RoutingEntry
-		for header, nodes, err = a.Dispatcher.FindNode(BootstrapHosts[i], a.NodeID); err != nil; {
+		for header, nodes, err = a.findNode(BootstrapHosts[i], a.NodeID); err != nil; {
 			log.Print(err)
 			time.Sleep(5 * time.Second)
 		}
@@ -78,6 +80,52 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 		for _, v := range nodes {
 			log.Print(v)
 		}
+		log.Print("Routing table:")
+		a.LogRoutingTable()
 	}
 	return nil
+}
+
+// The responseHandler function manages the side effects
+// of receiving an RPC response from the Dispatcher.
+func (a *AkademiNode) responseHandler(host Host, header RoutingHeader) {
+	r := RoutingEntry{
+		Host:   host,
+		NodeID: header.NodeID,
+	}
+	a.UpdateRoutingTable(r)
+}
+
+// Redefinitions of Dispatcher functions.
+
+// The Ping function dispatches a Ping RPC call to node
+// located at host.
+func (a *AkademiNode) ping(host Host) (RoutingHeader, error) {
+	header, err := a.Dispatcher.Ping(host)
+	a.responseHandler(host, header)
+	return header, err
+}
+
+// The FindNode function dispatches a FindNode RPC call
+// to node located at host.
+func (a *AkademiNode) findNode(host Host, nodeID BaseID) (RoutingHeader, []RoutingEntry, error) {
+	header, nodes, err := a.Dispatcher.FindNode(host, nodeID)
+	a.responseHandler(host, header)
+	return header, nodes, err
+}
+
+// The FindKey function dispatches a FindKey RPC call to
+// node located at host.
+func (a *AkademiNode) findKey(host Host, keyID BaseID) (RoutingHeader, DataBytes, []RoutingEntry, error) {
+	header, data, nodes, err := a.Dispatcher.FindKey(host, keyID)
+	a.responseHandler(host, header)
+	return header, data, nodes, err
+}
+
+// The Store function dispatches a Store RPC call to node
+// located at host.
+func (a *AkademiNode) store(host Host, keyID BaseID, value DataBytes) (RoutingHeader, error) {
+	header, err := a.Dispatcher.Store(host, keyID, value)
+	a.responseHandler(host, header)
+	return header, err
 }
