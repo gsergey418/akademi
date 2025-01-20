@@ -29,9 +29,9 @@ func (u *UDPDispatcher) Initialize(h core.RoutingHeader) error {
 // The Ping function dispatches a Ping RPC call to node
 // located at host.
 func (u *UDPDispatcher) Ping(host core.Host) (core.RoutingHeader, error) {
-	msg := &pb.BaseMessage{}
-	msg.Message = &pb.BaseMessage_PingRequest{}
-	res, err := u.dispatchUDPMessage(host, msg)
+	req := &pb.BaseMessage{}
+	req.Message = &pb.BaseMessage_PingRequest{}
+	res, err := u.dispatchUDPMessage(host, req)
 	if err != nil {
 		return core.RoutingHeader{}, err
 	}
@@ -41,7 +41,22 @@ func (u *UDPDispatcher) Ping(host core.Host) (core.RoutingHeader, error) {
 // The FindNode function dispatches a FindNode RPC call
 // to node located at host.
 func (u *UDPDispatcher) FindNode(host core.Host, nodeID core.BaseID) (core.RoutingHeader, []core.RoutingEntry, error) {
-	panic("Function FindNode not implemented.")
+	nodes := []core.RoutingEntry{}
+
+	req := &pb.BaseMessage{}
+	req.Message = &pb.BaseMessage_FindNodeRequest{FindNodeRequest: &pb.FindNodeRequest{NodeID: nodeID[:]}}
+	res, err := u.dispatchUDPMessage(host, req)
+	if err != nil {
+		return core.RoutingHeader{}, nodes, err
+	}
+
+	for _, v := range res.GetFindNodeResponse().GetRoutingEntry() {
+		nodes = append(nodes, core.RoutingEntry{
+			Host:   core.Host(v.Address),
+			NodeID: core.BaseID(v.NodeID),
+		})
+	}
+	return u.parseRoutingHeader(res), nodes, nil
 }
 
 // The FindKey function dispatches a FindKey RPC call to

@@ -4,6 +4,11 @@ import (
 	"fmt"
 )
 
+// Pretty-print RoutingEntry.
+func (r RoutingEntry) String() string {
+	return fmt.Sprintf("%s@%s", r.NodeID, r.Host)
+}
+
 // Update the routing table with a new entry.
 func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 	prefix := r.NodeID.GetPrefixLength(a.NodeID)
@@ -25,7 +30,13 @@ func (a *AkademiNode) PrintRoutingTable() {
 	fmt.Println("Node routing table:")
 	for _, bucket := range a.RoutingTable {
 		for _, r := range bucket {
-			fmt.Println(r.Host, r.NodeID.Base64Str())
+			fmt.Println(r.Host, r.NodeID)
 		}
 	}
+}
+
+// Gets the BucketSize closest nodes to the passed
+// argument.
+func (a *AkademiNode) GetClosestNodes(nodeID BaseID) []RoutingEntry {
+	return a.RoutingTable[a.NodeID.GetPrefixLength(nodeID)]
 }

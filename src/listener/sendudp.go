@@ -18,7 +18,6 @@ func (u *UDPListener) sendUDPBytes(remoteAddr *net.UDPAddr, buf []byte) error {
 // Sends pb.BaseMessage to remoteAddr.
 func (u *UDPListener) sendUDPMessage(remoteAddr *net.UDPAddr, res, req *pb.BaseMessage) error {
 	u.populateDefaultResponse(res, req)
-	res.Message = &pb.BaseMessage_PingResponse{}
 	resBytes, err := proto.Marshal(res)
 	if err != nil {
 		return err

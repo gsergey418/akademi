@@ -67,11 +67,17 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 	if bootstrap {
 		i := mrand.Intn(len(BootstrapHosts))
 		var header RoutingHeader
-		for header, err = a.Dispatcher.Ping(BootstrapHosts[i]); err != nil; {
+		var nodes []RoutingEntry
+		for header, nodes, err = a.Dispatcher.FindNode(BootstrapHosts[i], a.NodeID); err != nil; {
 			log.Print(err)
 			time.Sleep(5 * time.Second)
 		}
-		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID: ", header.NodeID.Base64Str())
+		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID: ", header.NodeID)
+		log.Print("Neighbor nodes:")
+		for _, v := range nodes {
+			log.Print(v)
+		}
 	}
+	log.Print("Initialized Akademi node. NodeID: ", a.NodeID)
 	return nil
 }

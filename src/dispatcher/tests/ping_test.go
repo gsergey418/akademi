@@ -15,5 +15,5 @@ func TestPing(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("NodeID: ", header.NodeID.Base64Str())
+	fmt.Println("NodeID: ", header.NodeID)
 }

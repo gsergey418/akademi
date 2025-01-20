@@ -29,7 +29,7 @@ func (id *BaseID) BinStr() string {
 }
 
 // Returns base64 BaseID string.
-func (id *BaseID) Base64Str() string {
+func (id BaseID) String() string {
 	return base64.StdEncoding.EncodeToString(id[:])
 }
 

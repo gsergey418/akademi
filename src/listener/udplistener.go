@@ -21,8 +21,8 @@ type UDPListener struct {
 }
 
 // Parse listenAddrString and set AkademiNode.
-func (u *UDPListener) Initialize(listenAddrString string, a *core.AkademiNode) error {
-	listenAddr, err := net.ResolveUDPAddr("udp", listenAddrString)
+func (u *UDPListener) Initialize(listenAddrStr string, a *core.AkademiNode) error {
+	listenAddr, err := net.ResolveUDPAddr("udp", listenAddrStr)
 	if err != nil {
 		return err
 	}
@@ -40,11 +40,11 @@ func (u *UDPListener) Listen() error {
 	}
 
 	for {
-		l, remoteAddr, err := u.udpConn.ReadFromUDP(u.udpReadBuffer[:])
+		l, host, err := u.udpConn.ReadFromUDP(u.udpReadBuffer[:])
 		if err != nil {
 			log.Print(err)
 		}
-		err = u.handleUDPMessage(remoteAddr, u.udpReadBuffer[:l])
+		err = u.handleUDPMessage(host, u.udpReadBuffer[:l])
 		if err != nil {
 			log.Print(err)
 		}
@@ -59,18 +59,31 @@ func (u *UDPListener) populateDefaultResponse(res, req *pb.BaseMessage) {
 }
 
 // Multiplexer for the BaseMessage type.
-func (u *UDPListener) reqMux(remoteAddr *net.UDPAddr, req *pb.BaseMessage) error {
+func (u *UDPListener) reqMux(host *net.UDPAddr, req *pb.BaseMessage) error {
 	switch {
 	case req.GetPingRequest() != nil:
 		res := &pb.BaseMessage{}
-		return u.sendUDPMessage(remoteAddr, res, req)
+		res.Message = &pb.BaseMessage_PingResponse{}
+		return u.sendUDPMessage(host, res, req)
+	case req.GetFindNodeRequest() != nil:
+		res := &pb.BaseMessage{}
+		msg := &pb.FindNodeResponse{}
+		nodes := u.AkademiNode.GetClosestNodes(core.BaseID(req.GetFindNodeRequest().NodeID))
+		for _, v := range nodes {
+			msg.RoutingEntry = append(msg.RoutingEntry, &pb.RoutingEntry{
+				Address: string(v.Host),
+				NodeID:  v.NodeID[:],
+			})
+		}
+		res.Message = &pb.BaseMessage_FindNodeResponse{FindNodeResponse: msg}
+		return u.sendUDPMessage(host, res, req)
 	}
 	return nil
 }
 
 // Handle a slice of bytes as a UDP message.
-func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) error {
-	log.Print("Message from ", remoteAddr, ": ", len(buf), " bytes.")
+func (u *UDPListener) handleUDPMessage(host *net.UDPAddr, buf []byte) error {
+	log.Print("Message from ", host, ": ", len(buf), " bytes.")
 	req := &pb.BaseMessage{}
 	err := proto.Unmarshal(buf, req)
 	if err != nil {
@@ -78,7 +91,7 @@ func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) erro
 	}
 
 	r := core.RoutingEntry{
-		Host:   core.Host(fmt.Sprintf("%s:%d", remoteAddr.IP, req.ListenPort)),
+		Host:   core.Host(fmt.Sprintf("%s:%d", host.IP, req.ListenPort)),
 		NodeID: core.BaseID(req.NodeID),
 	}
 	err = u.AkademiNode.UpdateRoutingTable(r)
@@ -86,7 +99,7 @@ func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) erro
 		log.Print(err)
 	}
 
-	err = u.reqMux(remoteAddr, req)
+	err = u.reqMux(host, req)
 	if err != nil {
 		return err
 	}
