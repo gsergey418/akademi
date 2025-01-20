@@ -19,7 +19,7 @@ func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 		}
 	}
 	if len(a.RoutingTable[prefix]) >= BucketSize {
-		return fmt.Errorf("Bucket already full.")
+		return fmt.Errorf("RoutingError: Bucket already full.")
 	}
 	a.RoutingTable[prefix] = append(a.RoutingTable[prefix], r)
 	return nil
@@ -38,5 +38,11 @@ func (a *AkademiNode) PrintRoutingTable() {
 // Gets the BucketSize closest nodes to the passed
 // argument.
 func (a *AkademiNode) GetClosestNodes(nodeID BaseID) []RoutingEntry {
-	return a.RoutingTable[a.NodeID.GetPrefixLength(nodeID)]
+	var nodes []RoutingEntry
+	i := a.NodeID.GetPrefixLength(nodeID)
+	for i >= 0 && len(nodes) < BucketSize {
+		nodes = append(nodes, a.RoutingTable[i][:]...)
+		i--
+	}
+	return nodes
 }

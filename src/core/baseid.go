@@ -2,7 +2,7 @@ package core
 
 import (
 	crand "crypto/rand"
-	"encoding/base64"
+	"encoding/base32"
 	"fmt"
 	"math/bits"
 )
@@ -28,9 +28,9 @@ func (id *BaseID) BinStr() string {
 	return out
 }
 
-// Returns base64 BaseID string.
+// Returns base32 BaseID string.
 func (id BaseID) String() string {
-	return base64.StdEncoding.EncodeToString(id[:])
+	return base32.StdEncoding.EncodeToString(id[:])
 }
 
 // Returns random BaseID.
