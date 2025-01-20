@@ -79,13 +79,13 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 	a.ListenPort = listenPort
 	a.NodeID = RandomBaseID()
 	a.Dispatcher = dispatcher
-	err := a.Dispatcher.Initialize(BaseMessageHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
+	err := a.Dispatcher.Initialize(RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
 	if err != nil {
 		return err
 	}
 	if bootstrap {
 		i := mrand.Intn(len(BootstrapHosts))
-		var header BaseMessageHeader
+		var header RoutingHeader
 		for header, err = a.Dispatcher.Ping(BootstrapHosts[i]); err != nil; {
 			log.Print(err)
 			time.Sleep(5 * time.Second)
