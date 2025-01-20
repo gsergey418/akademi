@@ -52,9 +52,25 @@ type AkademiNode struct {
 	ListenPort    IPPort
 	KeyValueStore map[BaseID][]byte
 
-	RoutingTable [IDLength * 8][BucketSize]RoutingEntry
+	RoutingTable [IDLength * 8][]RoutingEntry
 
 	Dispatcher Dispatcher
+}
+
+// Update the routing table with a new entry
+func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
+	prefix := r.NodeID.GetPrefixLength(a.NodeID)
+	for i, v := range a.RoutingTable[prefix] {
+		if v.NodeID == r.NodeID || v.Host == r.Host {
+			a.RoutingTable[prefix] = append(a.RoutingTable[prefix][:i], a.RoutingTable[prefix][i+1:]...)
+			break
+		}
+	}
+	if len(a.RoutingTable[prefix]) >= BucketSize {
+		return fmt.Errorf("Bucket already full.")
+	}
+	a.RoutingTable[prefix] = append(a.RoutingTable[prefix], r)
+	return nil
 }
 
 // The initialize function assigns a random NodeID to the
