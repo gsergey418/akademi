@@ -95,6 +95,16 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 	return nil
 }
 
+// Print all the entries in the routing table
+func (a *AkademiNode) PrintRoutingTable() {
+	fmt.Println("Node routing table:")
+	for _, bucket := range a.RoutingTable {
+		for _, r := range bucket {
+			fmt.Println(r.Host, r.NodeID.Base64Str())
+		}
+	}
+}
+
 // The function GetPrefixLength finds the length of the
 // common prefix between two Node/Key IDs.
 func (id0 *BaseID) GetPrefixLength(id1 BaseID) int {

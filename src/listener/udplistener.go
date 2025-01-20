@@ -1,6 +1,7 @@
 package listener
 
 import (
+	"fmt"
 	"log"
 	"net"
 
@@ -94,9 +95,20 @@ func (u *UDPListener) handleUDPMessage(remoteAddr *net.UDPAddr, buf []byte) erro
 	if err != nil {
 		return err
 	}
+
+	r := core.RoutingEntry{
+		Host:   core.Host(fmt.Sprintf("%s:%d", remoteAddr.IP, req.ListenPort)),
+		NodeID: core.BaseID(req.NodeID),
+	}
+	err = u.AkademiNode.UpdateRoutingTable(r)
+	if err != nil {
+		log.Print(err)
+	}
+
 	err = u.reqMux(remoteAddr, req)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
