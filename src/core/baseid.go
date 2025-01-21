@@ -3,7 +3,6 @@ package core
 import (
 	crand "crypto/rand"
 	"encoding/base32"
-	"encoding/binary"
 	"fmt"
 	"math/bits"
 )
@@ -18,15 +17,6 @@ func (id0 BaseID) GetPrefixLength(id1 BaseID) int {
 		}
 	}
 	return 0
-}
-
-// Gets the distance between two NodeIDs.
-func (id0 BaseID) GetDistance(id1 BaseID) int {
-	var xor BaseID
-	for i := 0; i < IDLength; i++ {
-		xor[i] = id0[i] ^ id1[i]
-	}
-	return int(binary.BigEndian.Uint64(xor[:]))
 }
 
 // Returns BaseID string in binary.

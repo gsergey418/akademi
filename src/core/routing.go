@@ -80,7 +80,13 @@ func (b sortBucketByDistance) Len() int {
 
 // Compares two entries in a SortBucketByDistance structure.
 func (b sortBucketByDistance) Less(i, j int) bool {
-	return b.NodeID.GetDistance((*b.Bucket)[i].NodeID) < b.NodeID.GetDistance((*b.Bucket)[j].NodeID)
+	for o := 0; o < IDLength; o++ {
+		xor := int((*b.Bucket)[j].NodeID[o]^b.NodeID[o]) - int((*b.Bucket)[i].NodeID[o]^b.NodeID[o])
+		if xor != 0 {
+			return xor > 0
+		}
+	}
+	return false
 }
 
 // Swaps two entries in a SortBucketByDistance structure.
