@@ -8,6 +8,7 @@ import (
 	"github.com/gsergey418alt/akademi/core"
 	"github.com/gsergey418alt/akademi/dispatcher"
 	"github.com/gsergey418alt/akademi/listener"
+	"github.com/gsergey418alt/akademi/rpc"
 )
 
 // getDispatcher returns an instance of the Dispatcher
@@ -17,13 +18,13 @@ func getDispatcher() core.Dispatcher {
 }
 
 // getAkademiNode creates and initializes an AkademiNode.
-func getAkademiNode(listenPort core.IPPort, bootstrap bool) *core.AkademiNode {
+func getAkademiNode(d core.Dispatcher, listenPort core.IPPort, bootstrap bool) (*core.AkademiNode, error) {
 	a := &core.AkademiNode{}
-	err := a.Initialize(getDispatcher(), listenPort, bootstrap)
+	err := a.Initialize(d, listenPort, bootstrap)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return a
+	return a, nil
 }
 
 // Extract port from IP address string
@@ -34,14 +35,17 @@ func parseIPPort(listenAddrString string) (core.IPPort, error) {
 
 // getListener creates an instance of the Listener
 // interface.
-func getListener(listenAddrString string, bootstrap bool) Listener {
+func getListener(a *core.AkademiNode, listenAddrString string) Listener {
 	l := &listener.UDPListener{}
-	listenPort, err := parseIPPort(listenAddrString)
-	if err != nil {
-		log.Fatal(err)
-	}
-	l.Initialize(listenAddrString, getAkademiNode(listenPort, bootstrap))
+	l.Initialize(listenAddrString, a)
 	return l
+}
+
+// getRPCserver returns an RPC server instance.
+func getRPCServer(a *core.AkademiNode) rpcServer {
+	r := &rpc.AkademiNodeRPCServer{}
+	r.Initialize(a)
+	return r
 }
 
 // Wrapper that allows for subroutines to run asynchronously
@@ -51,12 +55,30 @@ func AsyncWrapper(c chan error, f func() error) {
 }
 
 // Main loop of Akademi.
-func Daemon(listenAddrString string, bootstrap bool) error {
+func Daemon(listenAddrString string, bootstrap bool, rpcListenAddr string) error {
+	listenPort, err := parseIPPort(listenAddrString)
+	if err != nil {
+		return err
+	}
+
 	log.Print("Starting Kademlia DHT node on address ", listenAddrString)
-	l := getListener(listenAddrString, bootstrap)
+
+	dis := getDispatcher()
+	node, err := getAkademiNode(dis, listenPort, bootstrap)
+	if err != nil {
+		return err
+	}
+	listener := getListener(node, listenAddrString)
 
 	c := make(chan error)
-	go AsyncWrapper(c, l.Listen)
+	go AsyncWrapper(c, listener.Listen)
+
+	if rpcListenAddr != "" {
+		rpcServer := getRPCServer(node)
+		go AsyncWrapper(c, func() error {
+			return rpcServer.Serve(rpcListenAddr)
+		})
+	}
 
 	select {
 	case err := <-c:

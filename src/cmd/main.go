@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	listenAddrString = "0.0.0.0:3865"
+	rpcListenAddr  = "127.0.0.1:3855"
+	nodeListenAddr = "0.0.0.0:3865"
 )
 
 // The function parseArgs is responsible for command line
@@ -35,7 +36,7 @@ func main() {
 	cmd, bootstrap := parseArgs()
 	switch cmd {
 	case "daemon":
-		log.Fatal(daemon.Daemon(listenAddrString, bootstrap))
+		log.Fatal(daemon.Daemon(nodeListenAddr, bootstrap, rpcListenAddr))
 	default:
 		fmt.Print("Command \"", cmd, "\" not found.\n")
 		os.Exit(1)
