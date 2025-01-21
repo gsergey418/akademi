@@ -80,7 +80,6 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 		for _, v := range nodes {
 			log.Print(v)
 		}
-		log.Print("Routing table:")
 		a.LogRoutingTable()
 	}
 	return nil
@@ -111,6 +110,9 @@ func (a *AkademiNode) ping(host Host) (RoutingHeader, error) {
 func (a *AkademiNode) findNode(host Host, nodeID BaseID) (RoutingHeader, []RoutingEntry, error) {
 	header, nodes, err := a.Dispatcher.FindNode(host, nodeID)
 	a.responseHandler(host, header)
+	for _, r := range nodes {
+		a.UpdateRoutingTable(r)
+	}
 	return header, nodes, err
 }
 
@@ -119,6 +121,9 @@ func (a *AkademiNode) findNode(host Host, nodeID BaseID) (RoutingHeader, []Routi
 func (a *AkademiNode) findKey(host Host, keyID BaseID) (RoutingHeader, DataBytes, []RoutingEntry, error) {
 	header, data, nodes, err := a.Dispatcher.FindKey(host, keyID)
 	a.responseHandler(host, header)
+	for _, r := range nodes {
+		a.UpdateRoutingTable(r)
+	}
 	return header, data, nodes, err
 }
 
