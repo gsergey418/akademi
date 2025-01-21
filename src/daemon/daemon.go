@@ -18,12 +18,8 @@ func getDispatcher() core.Dispatcher {
 }
 
 // getAkademiNode creates and initializes an AkademiNode.
-func getAkademiNode(d core.Dispatcher, listenPort core.IPPort, bootstrap bool) (*core.AkademiNode, error) {
+func getAkademiNode() (*core.AkademiNode, error) {
 	a := &core.AkademiNode{}
-	err := a.Initialize(d, listenPort, bootstrap)
-	if err != nil {
-		return nil, err
-	}
 	return a, nil
 }
 
@@ -61,10 +57,11 @@ func Daemon(listenAddr string, bootstrap bool, rpcListenAddr string) error {
 		return err
 	}
 
-	log.Print("Starting Kademlia DHT node on address ", listenAddr)
+	log.Print("Starting Kademlia DHT node...")
 
 	dis := getDispatcher()
-	node, err := getAkademiNode(dis, listenPort, bootstrap)
+	node, err := getAkademiNode()
+
 	if err != nil {
 		return err
 	}
@@ -78,6 +75,11 @@ func Daemon(listenAddr string, bootstrap bool, rpcListenAddr string) error {
 		go AsyncWrapper(c, func() error {
 			return rpcServer.Serve()
 		})
+	}
+
+	err = node.Initialize(dis, listenPort, bootstrap)
+	if err != nil {
+		return err
 	}
 
 	select {

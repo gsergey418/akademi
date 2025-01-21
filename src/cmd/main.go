@@ -61,6 +61,16 @@ func parseArgs() {
 	return
 }
 
+// Wrapper for RPC calls.
+func RPCSessionManager(f func(client *rpc.Client) error) error {
+	client, err := rpc.DialHTTP("tcp", opts.rpcListenAddr)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	return f(client)
+}
+
 // Akademi entrypoint.
 func main() {
 	parseArgs()
@@ -68,14 +78,11 @@ func main() {
 	case "daemon":
 		log.Fatal(daemon.Daemon(opts.nodeListenAddr, opts.bootstrap, opts.rpcListenAddr))
 	case "ping":
-		client, err := rpc.DialHTTP("tcp", opts.rpcListenAddr)
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer client.Close()
 		args := akademiRPC.PingArgs{Host: core.Host(opts.targetHost)}
 		reply := akademiRPC.PingReply{}
-		err = client.Call("AkademiNodeRPCServer.Ping", args, &reply)
+		err := RPCSessionManager(func(client *rpc.Client) error {
+			return client.Call("AkademiNodeRPCServer.Ping", args, &reply)
+		})
 		if err != nil {
 			fmt.Println(err)
 		}
