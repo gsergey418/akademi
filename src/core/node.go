@@ -17,8 +17,6 @@ const (
 // the network.
 var BootstrapHosts = [...]Host{
 	"akademi_bootstrap_1:3865",
-	"akademi_bootstrap_2:3865",
-	"akademi_bootstrap_3:3865",
 }
 
 // Akademi uses node and key IDs, whose length is defined
@@ -75,6 +73,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 		var nodes []RoutingEntry
 		for header, nodes, err = a.findNode(BootstrapHosts[i], a.NodeID); err != nil; {
 			log.Print(err)
+			i = mrand.Intn(len(BootstrapHosts))
 			time.Sleep(5 * time.Second)
 		}
 		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID: ", header.NodeID)
