@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"log"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -15,26 +16,27 @@ type AkademiNodeRPCServer struct {
 }
 
 // Sets the underlying listen address and AkademiNode.
-func (a *AkademiNodeRPCServer) Initialize(n *core.AkademiNode, listenAddr string) {
-	a.ListenAddr = listenAddr
-	a.AkademiNode = n
+func (s *AkademiNodeRPCServer) Initialize(n *core.AkademiNode, listenAddr string) {
+	s.ListenAddr = listenAddr
+	s.AkademiNode = n
 }
 
 // Main loop of the RPC server.
-func (a *AkademiNodeRPCServer) Serve() error {
-	rpc.Register(a)
+func (s *AkademiNodeRPCServer) Serve() error {
+	rpc.Register(s)
 	rpc.HandleHTTP()
-	l, err := net.Listen("tcp", a.ListenAddr)
+	l, err := net.Listen("tcp", s.ListenAddr)
 	if err != nil {
 		return err
 	}
 	defer l.Close()
+	log.Print("RPC server started on address ", s.ListenAddr, ".")
 	return http.Serve(l, nil)
 }
 
 // Sends a ping request to args.Host.
-func (a *AkademiNodeRPCServer) Ping(args *PingArgs, reply *PingReply) error {
-	header, err := a.AkademiNode.Ping(args.Host)
+func (s *AkademiNodeRPCServer) Ping(args *PingArgs, reply *PingReply) error {
+	header, err := s.AkademiNode.Ping(args.Host)
 	reply.Header = header
 	return err
 }

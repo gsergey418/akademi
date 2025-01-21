@@ -38,6 +38,8 @@ func (u *UDPListener) Listen() error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
+	log.Print("UDP listener started on address ", u.ListenAddr, ".")
 
 	for {
 		l, host, err := u.udpConn.ReadFromUDP(u.udpReadBuffer[:])
