@@ -2,4 +2,4 @@ FROM golang:latest
 
 COPY akademi /bin
 
-CMD ["akademi"]
+CMD ["akademi", "daemon"]

@@ -73,9 +73,9 @@ func main() {
 	cmd, bootstrap := parseArgs()
 	switch cmd {
 	case "daemon":
+		log.Print("Starting Kademlia DHT node on address ", listenAddrString)
 		l := getListener(listenAddrString, bootstrap)
 
-		log.Print("Starting Kademlia DHT node on address ", listenAddrString)
 		log.Fatal(l.Listen())
 	default:
 		fmt.Print("Command \"", cmd, "\" not found.\n")
