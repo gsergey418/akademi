@@ -23,19 +23,20 @@ func (a *AkademiNodeRPCServer) Serve(listenAddr string) error {
 	if err != nil {
 		return err
 	}
+	defer l.Close()
 	return http.Serve(l, nil)
 }
 
 func (a *AkademiNodeRPCServer) Ping(args *PingArgs, reply *PingReply) error {
-	header, err := a.AkademiNode.Ping(args.host)
-	reply.header = header
+	header, err := a.AkademiNode.Ping(args.Host)
+	reply.Header = header
 	return err
 }
 
 type PingArgs struct {
-	host core.Host
+	Host core.Host
 }
 
 type PingReply struct {
-	header core.RoutingHeader
+	Header core.RoutingHeader
 }
