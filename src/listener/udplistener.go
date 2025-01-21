@@ -68,7 +68,7 @@ func (u *UDPListener) reqMux(host *net.UDPAddr, req *pb.BaseMessage) error {
 	case req.GetFindNodeRequest() != nil:
 		res := &pb.BaseMessage{}
 		msg := &pb.FindNodeResponse{}
-		nodes := u.AkademiNode.GetClosestNodes(core.BaseID(req.GetFindNodeRequest().NodeID))
+		nodes := u.AkademiNode.GetClosestNodes(core.BaseID(req.GetFindNodeRequest().NodeID), core.BucketSize)
 		for _, v := range nodes {
 			msg.RoutingEntry = append(msg.RoutingEntry, &pb.RoutingEntry{
 				Address: string(v.Host),

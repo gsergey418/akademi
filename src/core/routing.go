@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"log"
+	"sort"
 )
 
 // Pretty-print RoutingEntry.
@@ -26,8 +27,27 @@ func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 	return nil
 }
 
+// Gets the BucketSize closest nodes to the passed
+// argument.
+func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) []RoutingEntry {
+	var nodes []RoutingEntry
+	i := a.NodeID.GetPrefixLength(nodeID)
+	for i >= 0 && len(nodes) < amount {
+		nodes = append(nodes, a.RoutingTable[i][:]...)
+		i--
+	}
+	sort.Sort(sortBucketByDistance{NodeID: nodeID, Bucket: &nodes})
+	return nodes
+}
+
+// Locates a BaseID across the network.
+func (a *AkademiNode) locateNode(nodeID BaseID) (RoutingEntry, error) {
+	a.GetClosestNodes(nodeID, ConcurrentRequests)
+	panic("Function locateNode not implemented.")
+}
+
 // Print all the entries in the routing table.
-func (a *AkademiNode) PrintRoutingTable() {
+func (a *AkademiNode) printRoutingTable() {
 	fmt.Println("Node routing table:")
 	for _, bucket := range a.RoutingTable {
 		for _, r := range bucket {
@@ -37,7 +57,7 @@ func (a *AkademiNode) PrintRoutingTable() {
 }
 
 // Log all the entries in the routing table.
-func (a *AkademiNode) LogRoutingTable() {
+func (a *AkademiNode) logRoutingTable() {
 	log.Print("Node routing table:")
 	for _, bucket := range a.RoutingTable {
 		for _, r := range bucket {
@@ -46,14 +66,24 @@ func (a *AkademiNode) LogRoutingTable() {
 	}
 }
 
-// Gets the BucketSize closest nodes to the passed
-// argument.
-func (a *AkademiNode) GetClosestNodes(nodeID BaseID) []RoutingEntry {
-	var nodes []RoutingEntry
-	i := a.NodeID.GetPrefixLength(nodeID)
-	for i >= 0 && len(nodes) < BucketSize {
-		nodes = append(nodes, a.RoutingTable[i][:]...)
-		i--
-	}
-	return nodes
+// Utility structure for sorting that implements the
+// sort.Interface interface.
+type sortBucketByDistance struct {
+	NodeID BaseID
+	Bucket *[]RoutingEntry
+}
+
+// Finds bucket length in a SortBucketByDistance structure.
+func (b sortBucketByDistance) Len() int {
+	return len(*b.Bucket)
+}
+
+// Compares two entries in a SortBucketByDistance structure.
+func (b sortBucketByDistance) Less(i, j int) bool {
+	return b.NodeID.GetDistance((*b.Bucket)[i].NodeID) < b.NodeID.GetDistance((*b.Bucket)[j].NodeID)
+}
+
+// Swaps two entries in a SortBucketByDistance structure.
+func (b sortBucketByDistance) Swap(i, j int) {
+	(*b.Bucket)[i], (*b.Bucket)[j] = (*b.Bucket)[j], (*b.Bucket)[i]
 }

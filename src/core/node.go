@@ -9,8 +9,9 @@ import (
 
 // AkademiNode constants.
 const (
-	IDLength   = 20
-	BucketSize = 20
+	IDLength           = 20
+	BucketSize         = 20
+	ConcurrentRequests = 3
 )
 
 // List of bootstrap nodes used for first connecting to
@@ -81,7 +82,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 		for _, v := range nodes {
 			log.Print(v)
 		}
-		a.LogRoutingTable()
+		a.logRoutingTable()
 	}
 	return nil
 }
