@@ -72,7 +72,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 		i := mrand.Intn(len(BootstrapHosts))
 		var header RoutingHeader
 		var nodes []RoutingEntry
-		for header, nodes, err = a.findNode(BootstrapHosts[i], a.NodeID); err != nil; {
+		for header, nodes, err = a.FindNode(BootstrapHosts[i], a.NodeID); err != nil; {
 			log.Print(err)
 			i = mrand.Intn(len(BootstrapHosts))
 			time.Sleep(5 * time.Second)
@@ -101,7 +101,7 @@ func (a *AkademiNode) responseHandler(host Host, header RoutingHeader) {
 
 // The Ping function dispatches a Ping RPC call to node
 // located at host.
-func (a *AkademiNode) ping(host Host) (RoutingHeader, error) {
+func (a *AkademiNode) Ping(host Host) (RoutingHeader, error) {
 	header, err := a.Dispatcher.Ping(host)
 	a.responseHandler(host, header)
 	return header, err
@@ -109,7 +109,7 @@ func (a *AkademiNode) ping(host Host) (RoutingHeader, error) {
 
 // The FindNode function dispatches a FindNode RPC call
 // to node located at host.
-func (a *AkademiNode) findNode(host Host, nodeID BaseID) (RoutingHeader, []RoutingEntry, error) {
+func (a *AkademiNode) FindNode(host Host, nodeID BaseID) (RoutingHeader, []RoutingEntry, error) {
 	header, nodes, err := a.Dispatcher.FindNode(host, nodeID)
 	a.responseHandler(host, header)
 	for _, r := range nodes {
@@ -120,7 +120,7 @@ func (a *AkademiNode) findNode(host Host, nodeID BaseID) (RoutingHeader, []Routi
 
 // The FindKey function dispatches a FindKey RPC call to
 // node located at host.
-func (a *AkademiNode) findKey(host Host, keyID BaseID) (RoutingHeader, DataBytes, []RoutingEntry, error) {
+func (a *AkademiNode) FindKey(host Host, keyID BaseID) (RoutingHeader, DataBytes, []RoutingEntry, error) {
 	header, data, nodes, err := a.Dispatcher.FindKey(host, keyID)
 	a.responseHandler(host, header)
 	for _, r := range nodes {
@@ -131,7 +131,7 @@ func (a *AkademiNode) findKey(host Host, keyID BaseID) (RoutingHeader, DataBytes
 
 // The Store function dispatches a Store RPC call to node
 // located at host.
-func (a *AkademiNode) store(host Host, keyID BaseID, value DataBytes) (RoutingHeader, error) {
+func (a *AkademiNode) Store(host Host, keyID BaseID, value DataBytes) (RoutingHeader, error) {
 	header, err := a.Dispatcher.Store(host, keyID, value)
 	a.responseHandler(host, header)
 	return header, err
