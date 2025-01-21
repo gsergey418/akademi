@@ -35,16 +35,16 @@ func parseIPPort(listenAddrString string) (core.IPPort, error) {
 
 // getListener creates an instance of the Listener
 // interface.
-func getListener(a *core.AkademiNode, listenAddrString string) Listener {
+func getListener(a *core.AkademiNode, listenAddr string) Listener {
 	l := &listener.UDPListener{}
-	l.Initialize(listenAddrString, a)
+	l.Initialize(listenAddr, a)
 	return l
 }
 
 // getRPCserver returns an RPC server instance.
-func getRPCServer(a *core.AkademiNode) rpcServer {
+func getRPCServer(a *core.AkademiNode, listenAddr string) rpcServer {
 	r := &rpc.AkademiNodeRPCServer{}
-	r.Initialize(a)
+	r.Initialize(a, listenAddr)
 	return r
 }
 
@@ -55,28 +55,28 @@ func AsyncWrapper(c chan error, f func() error) {
 }
 
 // Main loop of Akademi.
-func Daemon(listenAddrString string, bootstrap bool, rpcListenAddr string) error {
-	listenPort, err := parseIPPort(listenAddrString)
+func Daemon(listenAddr string, bootstrap bool, rpcListenAddr string) error {
+	listenPort, err := parseIPPort(listenAddr)
 	if err != nil {
 		return err
 	}
 
-	log.Print("Starting Kademlia DHT node on address ", listenAddrString)
+	log.Print("Starting Kademlia DHT node on address ", listenAddr)
 
 	dis := getDispatcher()
 	node, err := getAkademiNode(dis, listenPort, bootstrap)
 	if err != nil {
 		return err
 	}
-	listener := getListener(node, listenAddrString)
+	listener := getListener(node, listenAddr)
 
 	c := make(chan error)
 	go AsyncWrapper(c, listener.Listen)
 
 	if rpcListenAddr != "" {
-		rpcServer := getRPCServer(node)
+		rpcServer := getRPCServer(node, rpcListenAddr)
 		go AsyncWrapper(c, func() error {
-			return rpcServer.Serve(rpcListenAddr)
+			return rpcServer.Serve()
 		})
 	}
 
