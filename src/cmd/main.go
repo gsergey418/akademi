@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -51,9 +52,14 @@ func getListener(listenAddrString string, bootstrap bool) Listener {
 
 // The function parseArgs is responsible for command line
 // argument parsing.
-func parseArgs() (bootstrap bool) {
+func parseArgs() (cmd string, bootstrap bool) {
 	bootstrap = true
-	for _, arg := range os.Args[1:] {
+	if len(os.Args) < 2 {
+		fmt.Print("Not enough arguments, please provide a command.\n")
+		os.Exit(1)
+	}
+	cmd = os.Args[1]
+	for _, arg := range os.Args[2:] {
 		switch arg {
 		case "--no-bootstrap":
 			bootstrap = false
@@ -64,9 +70,15 @@ func parseArgs() (bootstrap bool) {
 
 // Akademi entrypoint.
 func main() {
-	log.Print("Starting Kademlia DHT node on address ", listenAddrString)
+	cmd, bootstrap := parseArgs()
+	switch cmd {
+	case "daemon":
+		l := getListener(listenAddrString, bootstrap)
 
-	l := getListener(listenAddrString, parseArgs())
-
-	log.Fatal(l.Listen())
+		log.Print("Starting Kademlia DHT node on address ", listenAddrString)
+		log.Fatal(l.Listen())
+	default:
+		fmt.Print("Command \"", cmd, "\" not found.\n")
+		os.Exit(1)
+	}
 }
