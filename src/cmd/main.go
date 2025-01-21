@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	rpcListenAddr  = "127.0.0.1:3855"
+	// Never expose RPC to the public! For docker.
+	rpcListenAddr  = "0.0.0.0:3855"
 	nodeListenAddr = "0.0.0.0:3865"
 )
 
