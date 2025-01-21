@@ -3,6 +3,8 @@ GC ::= go
 DOCKER_CMD ::= docker
 DOCKER_NETWORK ::= akademi
 DOCKER_PREFIX ::= akademi_
+DOCKER_BOOTSTRAP_PREFIX ::= akademi_bootstrap_
+BOOTSTRAP_NODES ::= 3
 SWARM_PEERS ::= 10
 
 .PHONY: docker, docker_clean, swarm, swarm_stop, clean, cleanall, test
@@ -27,7 +29,9 @@ swarm: docker
 	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} || ${DOCKER_CMD} network create ${DOCKER_NETWORK}
 
-	${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}bootstrap -p 3856:3856 akademi /bin/akademi --no-bootstrap
+	for i in $$(seq ${BOOTSTRAP_NODES}); do\
+		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}$$i akademi /bin/akademi --no-bootstrap;\
+	done
 	for i in $$(seq ${SWARM_PEERS}); do\
 		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi;\
 	done

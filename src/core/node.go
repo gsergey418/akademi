@@ -16,7 +16,9 @@ const (
 // List of bootstrap nodes used for first connecting to
 // the network.
 var BootstrapHosts = [...]Host{
-	"akademi_bootstrap:3865",
+	"akademi_bootstrap_1:3865",
+	"akademi_bootstrap_2:3865",
+	"akademi_bootstrap_3:3865",
 }
 
 // Akademi uses node and key IDs, whose length is defined
