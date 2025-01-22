@@ -62,31 +62,8 @@ func (s *AkademiNodeRPCServer) RoutingTable(args *RoutingTableArgs, reply *Routi
 	return nil
 }
 
-// Args for the Ping RPC.
-type PingArgs struct {
-	Host core.Host
-}
-
-// Reply for the Ping RPC.
-type PingReply struct {
-	Header core.RoutingHeader
-}
-
-// Args for the Lookup RPC.
-type LookupArgs struct {
-	ID core.BaseID
-}
-
-// Reply for the Lookup RPC.
-type LookupReply struct {
-	Header       core.RoutingHeader
-	RoutingEntry core.RoutingEntry
-}
-
-// Args for the RoutingTable RPC.
-type RoutingTableArgs struct{}
-
-// Reply for the RoutingTable RPC.
-type RoutingTableReply struct {
-	RoutingTable string
+// Gets the node information.
+func (s *AkademiNodeRPCServer) NodeInfo(args *NodeInfoArgs, reply *NodeInfoReply) error {
+	reply.NodeInfo = s.AkademiNode.NodeInfo()
+	return nil
 }

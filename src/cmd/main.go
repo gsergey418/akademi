@@ -39,6 +39,7 @@ func parseArgs() {
 	noPosArgs = map[string]bool{
 		"daemon":        true,
 		"routing_table": true,
+		"info":          true,
 	}
 
 	opts.bootstrap = true
@@ -120,6 +121,13 @@ func main() {
 			return client.Call("AkademiNodeRPCServer.RoutingTable", args, &reply)
 		})
 		fmt.Print("Node routing table:\n", reply.RoutingTable, "\n")
+	case "info":
+		args := akademiRPC.NodeInfoArgs{}
+		reply := akademiRPC.NodeInfoReply{}
+		RPCSessionManager(func(client *rpc.Client) error {
+			return client.Call("AkademiNodeRPCServer.NodeInfo", args, &reply)
+		})
+		fmt.Print("Node information:\n", reply.NodeInfo, "\n")
 	default:
 		fmt.Print("Command \"", opts.cmd, "\" not found.\n")
 		os.Exit(1)
