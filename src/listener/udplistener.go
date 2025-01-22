@@ -98,7 +98,7 @@ func (u *UDPListener) handleUDPMessage(host *net.UDPAddr, buf []byte) error {
 	}
 	err = u.AkademiNode.UpdateRoutingTable(r)
 	if err != nil {
-		log.Print(err)
+		return err
 	}
 
 	err = u.reqMux(host, req)

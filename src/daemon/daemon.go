@@ -72,9 +72,7 @@ func Daemon(listenAddr string, bootstrap bool, rpcListenAddr string) error {
 
 	if rpcListenAddr != "" {
 		rpcServer := getRPCServer(node, rpcListenAddr)
-		go AsyncWrapper(c, func() error {
-			return rpcServer.Serve()
-		})
+		go AsyncWrapper(c, rpcServer.Serve)
 	}
 
 	err = node.Initialize(dis, listenPort, bootstrap)

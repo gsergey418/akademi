@@ -56,6 +56,7 @@ func parseArgs() {
 			i++
 		default:
 			fmt.Print("Unknown argument: \"", os.Args[i], "\".\n")
+			os.Exit(1)
 		}
 	}
 	return
@@ -85,6 +86,7 @@ func main() {
 		})
 		if err != nil {
 			fmt.Println(err)
+			os.Exit(1)
 		}
 		fmt.Print("Received reply from ", opts.targetHost, ". NodeID: ", reply.Header.NodeID, ".\n")
 	default:
