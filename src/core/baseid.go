@@ -16,7 +16,7 @@ func (id0 BaseID) GetPrefixLength(id1 BaseID) int {
 			return i*8 + bits.LeadingZeros8(xor)
 		}
 	}
-	return 0
+	return IDLength * 8
 }
 
 // Returns BaseID string in binary.

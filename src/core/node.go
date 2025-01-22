@@ -60,7 +60,7 @@ type AkademiNode struct {
 	}
 
 	routingTable struct {
-		data [IDLength * 8][]RoutingEntry
+		data [IDLength*8 + 1][]RoutingEntry
 		lock sync.Mutex
 	}
 

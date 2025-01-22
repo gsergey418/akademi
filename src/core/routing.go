@@ -15,9 +15,6 @@ func (r RoutingEntry) String() string {
 
 // Update the routing table with a new entry.
 func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
-	if r.NodeID == a.NodeID {
-		return fmt.Errorf("Can't put your own ID into the routing table.")
-	}
 	prefix := r.NodeID.GetPrefixLength(a.NodeID)
 	a.routingTable.lock.Lock()
 	for i, v := range a.routingTable.data[prefix] {
@@ -41,11 +38,14 @@ func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) ([]RoutingEntry
 	prefix := a.NodeID.GetPrefixLength(nodeID)
 
 	a.routingTable.lock.Lock()
-	for i := prefix; i >= 0 && len(nodes) < amount; i-- {
-		nodes = append(nodes, a.routingTable.data[i][:]...)
-	}
-	for i := prefix; i < IDLength*8 && len(nodes) < amount; i++ {
-		nodes = append(nodes, a.routingTable.data[i][:]...)
+	nodes = append(nodes, a.routingTable.data[prefix][:]...)
+	for i := 1; (i <= prefix || i < IDLength*8-prefix) && len(nodes) < amount; i++ {
+		if i <= prefix {
+			nodes = append(nodes, a.routingTable.data[prefix-i][:]...)
+		}
+		if i < IDLength*8 {
+			nodes = append(nodes, a.routingTable.data[prefix+i][:]...)
+		}
 	}
 	a.routingTable.lock.Unlock()
 
@@ -75,9 +75,6 @@ func (a *AkademiNode) Lookup(nodeID BaseID, amount int) ([]RoutingEntry, error) 
 
 	for nodes[0] != prevClosestNode {
 		reqCounter := 0
-		if nodes[0].NodeID == nodeID {
-			return nodes[:amount], nil
-		}
 		for i := 0; i < len(nodes) && reqCounter < ConcurrentRequests; i++ {
 			if _, ok := queriedHosts[nodes[i].Host]; ok == false {
 				wg.Add(1)
@@ -93,6 +90,9 @@ func (a *AkademiNode) Lookup(nodeID BaseID, amount int) ([]RoutingEntry, error) 
 			}
 		}
 		wg.Wait()
+		if nodes[0].NodeID == nodeID {
+			return nodes[:amount], nil
+		}
 		prevClosestNode = nodes[0]
 		nodes, err = a.GetClosestNodes(nodeID, ConcurrentRequests)
 		if err != nil {

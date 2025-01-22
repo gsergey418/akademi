@@ -10,5 +10,8 @@ import (
 func TestGetPrefixLength(t *testing.T) {
 	id0 := core.BaseID{0, 0, 0, 0, 0, 0, 127, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255}
 	id1 := core.BaseID{0, 0, 0, 0, 0, 0, 63, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255}
+	id2 := core.BaseID{0, 0, 0, 0, 0, 0, 127, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 254}
 	fmt.Println(id0.GetPrefixLength(id1))
+	fmt.Println(id0.GetPrefixLength(id2))
+	fmt.Println(id0.GetPrefixLength(id0))
 }

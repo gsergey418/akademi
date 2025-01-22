@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gsergey418alt/akademi/core"
@@ -24,6 +26,11 @@ func (u *UDPDispatcher) dispatchUDPBytes(host core.Host, buf []byte) ([]byte, er
 	err = conn.SetDeadline(time.Now().Add(1 * time.Second))
 	if err != nil {
 		return nil, err
+	}
+
+	self := strings.Split(conn.LocalAddr().String(), ":")[0] + ":" + strconv.Itoa(int(u.RoutingHeader.ListenPort))
+	if self == string(host) {
+		return nil, fmt.Errorf("Refusing to dispatch request to self.")
 	}
 
 	log.Print("Dispatching request to ", host, ": ", len(buf), " bytes.")
