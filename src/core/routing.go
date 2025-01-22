@@ -39,11 +39,11 @@ func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) ([]RoutingEntry
 
 	a.routingTable.lock.Lock()
 	nodes = append(nodes, a.routingTable.data[prefix][:]...)
-	for i := 1; (i <= prefix || i < IDLength*8-prefix) && len(nodes) < amount; i++ {
+	for i := 1; (i <= prefix || i < IDLength*8+1-prefix) && len(nodes) < amount; i++ {
 		if i <= prefix {
 			nodes = append(nodes, a.routingTable.data[prefix-i][:]...)
 		}
-		if i < IDLength*8 {
+		if i < IDLength*8+1 {
 			nodes = append(nodes, a.routingTable.data[prefix+i][:]...)
 		}
 	}
