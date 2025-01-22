@@ -38,13 +38,17 @@ func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 // argument.
 func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) ([]RoutingEntry, error) {
 	var nodes []RoutingEntry
-	i := a.NodeID.GetPrefixLength(nodeID)
+	prefix := a.NodeID.GetPrefixLength(nodeID)
+
 	a.routingTable.lock.Lock()
-	for i >= 0 && len(nodes) < amount {
+	for i := prefix; i >= 0 && len(nodes) < amount; i-- {
 		nodes = append(nodes, a.routingTable.data[i][:]...)
-		i--
+	}
+	for i := prefix; i < IDLength*8 && len(nodes) < amount; i++ {
+		nodes = append(nodes, a.routingTable.data[i][:]...)
 	}
 	a.routingTable.lock.Unlock()
+
 	if len(nodes) == 0 {
 		return nodes, fmt.Errorf("Node doesn't exist.")
 	}
@@ -112,6 +116,10 @@ func (a *AkademiNode) Lookup(nodeID BaseID, amount int) ([]RoutingEntry, error) 
 		}
 	}
 	wg.Wait()
+	nodes, err = a.GetClosestNodes(nodeID, ConcurrentRequests)
+	if err != nil {
+		return nodes, err
+	}
 
 	return nodes[:amount], nil
 }
