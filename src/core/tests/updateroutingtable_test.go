@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gsergey418alt/akademi/core"
@@ -28,11 +27,11 @@ func TestUpdateRoutingTable(t *testing.T) {
 	}
 
 	a.UpdateRoutingTable(r1)
-	fmt.Println("Inserted node", r1.Host, "Last table entry:", a.RoutingTable[r1.NodeID.GetPrefixLength(a.NodeID)][len(a.RoutingTable[r1.NodeID.GetPrefixLength(a.NodeID)])-1].Host)
+	a.PrintRoutingTable()
 	a.UpdateRoutingTable(r2)
-	fmt.Println("Inserted node", r2.Host, "Last table entry:", a.RoutingTable[r1.NodeID.GetPrefixLength(a.NodeID)][len(a.RoutingTable[r1.NodeID.GetPrefixLength(a.NodeID)])-1].Host)
+	a.PrintRoutingTable()
 	a.UpdateRoutingTable(r3)
-	fmt.Println("Inserted node", r3.Host, "Last table entry:", a.RoutingTable[r1.NodeID.GetPrefixLength(a.NodeID)][len(a.RoutingTable[r1.NodeID.GetPrefixLength(a.NodeID)])-1].Host)
+	a.PrintRoutingTable()
 	a.UpdateRoutingTable(r1)
-	fmt.Println("Inserted node", r1.Host, "Last table entry:", a.RoutingTable[r1.NodeID.GetPrefixLength(a.NodeID)][len(a.RoutingTable[r1.NodeID.GetPrefixLength(a.NodeID)])-1].Host)
+	a.PrintRoutingTable()
 }

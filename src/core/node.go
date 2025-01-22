@@ -2,6 +2,7 @@ package core
 
 import (
 	"log"
+	"sync"
 
 	mrand "math/rand"
 	"time"
@@ -48,11 +49,17 @@ type RoutingEntry struct {
 type AkademiNode struct {
 	NodeID        BaseID
 	ListenPort    IPPort
-	KeyValueStore map[BaseID][]byte
+	keyValueStore struct {
+		data map[BaseID][]byte
+		lock sync.Mutex
+	}
 
-	RoutingTable [IDLength * 8][]RoutingEntry
+	routingTable struct {
+		data [IDLength * 8][]RoutingEntry
+		lock sync.Mutex
+	}
 
-	Dispatcher Dispatcher
+	dispatcher Dispatcher
 }
 
 // The initialize function assigns a random NodeID to the
@@ -62,8 +69,8 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 	a.NodeID = RandomBaseID()
 	log.Print("Initializing Akademi node. NodeID: ", a.NodeID)
 
-	a.Dispatcher = dispatcher
-	err := a.Dispatcher.Initialize(RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
+	a.dispatcher = dispatcher
+	err := a.dispatcher.Initialize(RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
 	if err != nil {
 		return err
 	}
@@ -82,7 +89,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 		for _, v := range nodes {
 			log.Print(v)
 		}
-		a.logRoutingTable()
+		a.LogRoutingTable()
 	}
 	return nil
 }
@@ -102,7 +109,7 @@ func (a *AkademiNode) responseHandler(host Host, header RoutingHeader) {
 // The Ping function dispatches a Ping RPC call to node
 // located at host.
 func (a *AkademiNode) Ping(host Host) (RoutingHeader, error) {
-	header, err := a.Dispatcher.Ping(host)
+	header, err := a.dispatcher.Ping(host)
 	a.responseHandler(host, header)
 	return header, err
 }
@@ -110,7 +117,7 @@ func (a *AkademiNode) Ping(host Host) (RoutingHeader, error) {
 // The FindNode function dispatches a FindNode RPC call
 // to node located at host.
 func (a *AkademiNode) FindNode(host Host, nodeID BaseID) (RoutingHeader, []RoutingEntry, error) {
-	header, nodes, err := a.Dispatcher.FindNode(host, nodeID)
+	header, nodes, err := a.dispatcher.FindNode(host, nodeID)
 	a.responseHandler(host, header)
 	for _, r := range nodes {
 		a.UpdateRoutingTable(r)
@@ -121,7 +128,7 @@ func (a *AkademiNode) FindNode(host Host, nodeID BaseID) (RoutingHeader, []Routi
 // The FindKey function dispatches a FindKey RPC call to
 // node located at host.
 func (a *AkademiNode) FindKey(host Host, keyID BaseID) (RoutingHeader, DataBytes, []RoutingEntry, error) {
-	header, data, nodes, err := a.Dispatcher.FindKey(host, keyID)
+	header, data, nodes, err := a.dispatcher.FindKey(host, keyID)
 	a.responseHandler(host, header)
 	for _, r := range nodes {
 		a.UpdateRoutingTable(r)
@@ -132,7 +139,7 @@ func (a *AkademiNode) FindKey(host Host, keyID BaseID) (RoutingHeader, DataBytes
 // The Store function dispatches a Store RPC call to node
 // located at host.
 func (a *AkademiNode) Store(host Host, keyID BaseID, value DataBytes) (RoutingHeader, error) {
-	header, err := a.Dispatcher.Store(host, keyID, value)
+	header, err := a.dispatcher.Store(host, keyID, value)
 	a.responseHandler(host, header)
 	return header, err
 }

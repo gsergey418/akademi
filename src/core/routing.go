@@ -14,16 +14,16 @@ func (r RoutingEntry) String() string {
 // Update the routing table with a new entry.
 func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 	prefix := r.NodeID.GetPrefixLength(a.NodeID)
-	for i, v := range a.RoutingTable[prefix] {
+	for i, v := range a.routingTable.data[prefix] {
 		if v.NodeID == r.NodeID || v.Host == r.Host {
-			a.RoutingTable[prefix] = append(a.RoutingTable[prefix][:i], a.RoutingTable[prefix][i+1:]...)
+			a.routingTable.data[prefix] = append(a.routingTable.data[prefix][:i], a.routingTable.data[prefix][i+1:]...)
 			break
 		}
 	}
-	if len(a.RoutingTable[prefix]) >= BucketSize {
+	if len(a.routingTable.data[prefix]) >= BucketSize {
 		return fmt.Errorf("RoutingError: Bucket already full.")
 	}
-	a.RoutingTable[prefix] = append(a.RoutingTable[prefix], r)
+	a.routingTable.data[prefix] = append(a.routingTable.data[prefix], r)
 	return nil
 }
 
@@ -33,7 +33,7 @@ func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) []RoutingEntry 
 	var nodes []RoutingEntry
 	i := a.NodeID.GetPrefixLength(nodeID)
 	for i >= 0 && len(nodes) < amount {
-		nodes = append(nodes, a.RoutingTable[i][:]...)
+		nodes = append(nodes, a.routingTable.data[i][:]...)
 		i--
 	}
 	sort.Sort(sortBucketByDistance{NodeID: nodeID, Bucket: &nodes})
@@ -47,9 +47,9 @@ func (a *AkademiNode) locateNode(nodeID BaseID) (RoutingEntry, error) {
 }
 
 // Print all the entries in the routing table.
-func (a *AkademiNode) printRoutingTable() {
+func (a *AkademiNode) PrintRoutingTable() {
 	fmt.Println("Node routing table:")
-	for _, bucket := range a.RoutingTable {
+	for _, bucket := range a.routingTable.data {
 		for _, r := range bucket {
 			fmt.Println(r)
 		}
@@ -57,9 +57,9 @@ func (a *AkademiNode) printRoutingTable() {
 }
 
 // Log all the entries in the routing table.
-func (a *AkademiNode) logRoutingTable() {
+func (a *AkademiNode) LogRoutingTable() {
 	log.Print("Node routing table:")
-	for _, bucket := range a.RoutingTable {
+	for _, bucket := range a.routingTable.data {
 		for _, r := range bucket {
 			log.Print(r)
 		}
