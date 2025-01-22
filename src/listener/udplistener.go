@@ -1,6 +1,7 @@
 package listener
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net"
@@ -93,6 +94,10 @@ func (u *UDPListener) handleUDPMessage(host *net.UDPAddr, buf []byte) error {
 	err := proto.Unmarshal(buf, req)
 	if err != nil {
 		return err
+	}
+
+	if bytes.Equal(req.NodeID, u.AkademiNode.NodeID[:]) {
+		return fmt.Errorf("Request from self, dropping.")
 	}
 
 	r := core.RoutingEntry{

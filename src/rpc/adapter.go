@@ -67,3 +67,10 @@ func (s *AkademiNodeRPCServer) NodeInfo(args *NodeInfoArgs, reply *NodeInfoReply
 	reply.NodeInfo = s.AkademiNode.NodeInfo()
 	return nil
 }
+
+// Sends a bootstrap request (self-lookup) to Host. Useful
+// if daemon was started with the "--no-bootstrap" flag.
+func (s *AkademiNodeRPCServer) Bootstrap(args *BootstrapArgs, reply *BootstrapReply) error {
+	_, _, err := s.AkademiNode.FindNode(args.Host, s.AkademiNode.NodeID)
+	return err
+}

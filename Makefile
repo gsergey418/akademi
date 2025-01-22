@@ -4,7 +4,7 @@ DOCKER_CMD ::= docker
 DOCKER_NETWORK ::= akademi
 DOCKER_PREFIX ::= akademi_
 DOCKER_BOOTSTRAP_PREFIX ::= akademi_bootstrap_
-BOOTSTRAP_NODES ::= 1
+BOOTSTRAP_NODES ::= 3
 SWARM_PEERS ::= 30
 
 .PHONY: docker, docker_clean, swarm, swarm_stop, clean, cleanall, test
@@ -29,12 +29,18 @@ swarm: docker
 	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} || ${DOCKER_CMD} network create ${DOCKER_NETWORK}
 
+	for i in $$(seq ${SWARM_PEERS}); do\
+		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi;\
+	done
 	for i in $$(seq ${BOOTSTRAP_NODES}); do\
 		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}$$i akademi /bin/akademi daemon --no-bootstrap;\
 	done
-	${DOCKER_CMD} run -d -p 127.0.0.1:3865:3865 -p 127.0.0.1:3855:3855 --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}1 akademi /bin/akademi daemon --rpc-addr 0.0.0.0:3855
-	for i in $$(seq 2 ${SWARM_PEERS}); do\
-		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi;\
+	echo "Started containers. Waiting 6 seconds for bootstrap nodes to populate their routing tables."
+	sleep 6
+	for i in $$(seq ${BOOTSTRAP_NODES}); do\
+		for o in $$(seq ${BOOTSTRAP_NODES}); do\
+			[ $$i != $$o ] && ${DOCKER_CMD} exec ${DOCKER_BOOTSTRAP_PREFIX}$$i /bin/akademi bootstrap ${DOCKER_BOOTSTRAP_PREFIX}$$o:3865;\
+		done;\
 	done
 
 swarm_stop:

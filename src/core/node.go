@@ -14,12 +14,15 @@ const (
 	IDLength           = 20
 	BucketSize         = 20
 	ConcurrentRequests = 3
+	Bootstraps         = 3
 )
 
 // List of bootstrap nodes used for first connecting to
 // the network.
-var BootstrapHosts = [...]Host{
+var BootstrapList = [...]Host{
 	"akademi_bootstrap_1:3865",
+	"akademi_bootstrap_2:3865",
+	"akademi_bootstrap_3:3865",
 }
 
 // Akademi uses node and key IDs, whose length is defined
@@ -79,24 +82,29 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, boots
 	}
 
 	if bootstrap {
-		i := mrand.Intn(len(BootstrapHosts))
-		var header RoutingHeader
-		var nodes []RoutingEntry
-		for header, nodes, err = a.FindNode(BootstrapHosts[i], a.NodeID); err != nil; {
-			log.Print(err)
-			i = mrand.Intn(len(BootstrapHosts))
-			time.Sleep(5 * time.Second)
+		bootstrapHosts := BootstrapList[:]
+		for bootstrapCount := 0; bootstrapCount < Bootstraps; bootstrapCount++ {
+			var i int
+			var err error
+			var header RoutingHeader
+			i = mrand.Intn(len(bootstrapHosts))
+			header, _, err = a.FindNode(bootstrapHosts[i], a.NodeID)
+			for err != nil {
+				log.Print(err)
+				time.Sleep(5 * time.Second)
+				i = mrand.Intn(len(bootstrapHosts))
+				header, _, err = a.FindNode(bootstrapHosts[i], a.NodeID)
+			}
+			log.Print("Connected to bootstrap node \"", BootstrapList[i], "\". NodeID: ", header.NodeID)
+			bootstrapHosts = append(bootstrapHosts[:i], bootstrapHosts[i+1:]...)
 		}
-		log.Print("Connected to bootstrap node \"", BootstrapHosts[i], "\". NodeID: ", header.NodeID)
-		log.Print("Neighbor nodes:")
-		for _, v := range nodes {
-			log.Print(v)
-		}
+		log.Print("Bootstrapping process finished.")
 		a.LogRoutingTable()
 	}
 	return nil
 }
 
+// Returns time.Duration of the node's uptime.
 func (a *AkademiNode) Uptime() time.Duration {
 	return time.Since(a.StartTime)
 }

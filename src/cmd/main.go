@@ -103,7 +103,7 @@ func main() {
 	case "lookup":
 		idBytes, err := base32.StdEncoding.DecodeString(opts.target)
 		if err != nil || len(idBytes) != core.IDLength {
-			fmt.Print("Wrong ID format, use ", core.IDLength, "-byte base32 string.")
+			fmt.Print("Wrong ID format, use ", core.IDLength, "-byte base32 string.\n")
 			os.Exit(1)
 		}
 		var id core.BaseID
@@ -128,6 +128,13 @@ func main() {
 			return client.Call("AkademiNodeRPCServer.NodeInfo", args, &reply)
 		})
 		fmt.Print("Node information:\n", reply.NodeInfo, "\n")
+	case "bootstrap":
+		args := akademiRPC.BootstrapArgs{Host: core.Host(opts.target)}
+		reply := akademiRPC.BootstrapReply{}
+		RPCSessionManager(func(client *rpc.Client) error {
+			return client.Call("AkademiNodeRPCServer.Bootstrap", args, &reply)
+		})
+		fmt.Print("Successfully bootstrapped node with ", opts.target, ".\n")
 	default:
 		fmt.Print("Command \"", opts.cmd, "\" not found.\n")
 		os.Exit(1)

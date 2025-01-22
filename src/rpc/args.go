@@ -19,3 +19,8 @@ type RoutingTableArgs struct{}
 
 // Args for the NodeInfo RPC.
 type NodeInfoArgs struct{}
+
+// Args for the Bootstrap RPC.
+type BootstrapArgs struct {
+	Host core.Host
+}

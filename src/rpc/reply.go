@@ -22,3 +22,6 @@ type RoutingTableReply struct {
 type NodeInfoReply struct {
 	NodeInfo string
 }
+
+// Reply for the Bootstrap RPC.
+type BootstrapReply struct{}

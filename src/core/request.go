@@ -16,6 +16,9 @@ func (a *AkademiNode) responseHandler(host Host, header RoutingHeader) {
 // located at host.
 func (a *AkademiNode) Ping(host Host) (RoutingHeader, error) {
 	header, err := a.dispatcher.Ping(host)
+	if err != nil {
+		return header, err
+	}
 	a.responseHandler(host, header)
 	return header, err
 }
@@ -24,6 +27,9 @@ func (a *AkademiNode) Ping(host Host) (RoutingHeader, error) {
 // to node located at host.
 func (a *AkademiNode) FindNode(host Host, nodeID BaseID) (RoutingHeader, []RoutingEntry, error) {
 	header, nodes, err := a.dispatcher.FindNode(host, nodeID)
+	if err != nil {
+		return header, nodes, err
+	}
 	a.responseHandler(host, header)
 	for _, r := range nodes {
 		a.UpdateRoutingTable(r)
@@ -35,6 +41,9 @@ func (a *AkademiNode) FindNode(host Host, nodeID BaseID) (RoutingHeader, []Routi
 // node located at host.
 func (a *AkademiNode) FindKey(host Host, keyID BaseID) (RoutingHeader, DataBytes, []RoutingEntry, error) {
 	header, data, nodes, err := a.dispatcher.FindKey(host, keyID)
+	if err != nil {
+		return header, data, nodes, err
+	}
 	a.responseHandler(host, header)
 	for _, r := range nodes {
 		a.UpdateRoutingTable(r)
@@ -46,6 +55,9 @@ func (a *AkademiNode) FindKey(host Host, keyID BaseID) (RoutingHeader, DataBytes
 // located at host.
 func (a *AkademiNode) Store(host Host, keyID BaseID, value DataBytes) (RoutingHeader, error) {
 	header, err := a.dispatcher.Store(host, keyID, value)
+	if err != nil {
+		return header, err
+	}
 	a.responseHandler(host, header)
 	return header, err
 }
