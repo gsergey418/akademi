@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 	"sync"
 )
 
@@ -115,23 +116,27 @@ func (a *AkademiNode) Lookup(nodeID BaseID, amount int) ([]RoutingEntry, error) 
 	return nodes[:amount], nil
 }
 
-// Print all the entries in the routing table.
-func (a *AkademiNode) PrintRoutingTable() {
-	fmt.Println("Node routing table:")
+// Get all the entries in the routing table as a string.
+func (a *AkademiNode) RoutingTableString() (table string) {
 	for _, bucket := range a.routingTable.data {
 		for _, r := range bucket {
-			fmt.Println(r)
+			table += fmt.Sprintln(r)
 		}
 	}
+	return table[:len(table)-1]
+}
+
+// Print the routing table.
+func (a *AkademiNode) PrintRoutingTable() {
+	fmt.Println("Node routing table:")
+	fmt.Println(a.RoutingTableString())
 }
 
 // Log all the entries in the routing table.
 func (a *AkademiNode) LogRoutingTable() {
 	log.Print("Node routing table:")
-	for _, bucket := range a.routingTable.data {
-		for _, r := range bucket {
-			log.Print(r)
-		}
+	for _, line := range strings.Split(a.RoutingTableString(), "\n") {
+		log.Print(line)
 	}
 }
 

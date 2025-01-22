@@ -27,11 +27,11 @@ func TestUpdateRoutingTable(t *testing.T) {
 	}
 
 	a.UpdateRoutingTable(r1)
-	a.PrintRoutingTable()
+	a.RoutingTableString()
 	a.UpdateRoutingTable(r2)
-	a.PrintRoutingTable()
+	a.RoutingTableString()
 	a.UpdateRoutingTable(r3)
-	a.PrintRoutingTable()
+	a.RoutingTableString()
 	a.UpdateRoutingTable(r1)
-	a.PrintRoutingTable()
+	a.RoutingTableString()
 }

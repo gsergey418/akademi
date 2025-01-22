@@ -42,7 +42,7 @@ func (s *AkademiNodeRPCServer) Ping(args *PingArgs, reply *PingReply) error {
 	return err
 }
 
-// Sends a ping request to args.Host.
+// Sends a lookup request for args.ID.
 func (s *AkademiNodeRPCServer) Lookup(args *LookupArgs, reply *LookupReply) error {
 	nodes, err := s.AkademiNode.Lookup(args.ID, 1)
 	empty := core.RoutingEntry{}
@@ -53,6 +53,12 @@ func (s *AkademiNodeRPCServer) Lookup(args *LookupArgs, reply *LookupReply) erro
 		return fmt.Errorf("Could not lookup ID %s.", args.ID)
 	}
 	reply.RoutingEntry = nodes[0]
+	return nil
+}
+
+// Gets the node routing table as a string.
+func (s *AkademiNodeRPCServer) RoutingTable(args *RoutingTableArgs, reply *RoutingTableReply) error {
+	reply.RoutingTable = s.AkademiNode.RoutingTableString()
 	return nil
 }
 
@@ -75,4 +81,12 @@ type LookupArgs struct {
 type LookupReply struct {
 	Header       core.RoutingHeader
 	RoutingEntry core.RoutingEntry
+}
+
+// Args for the RoutingTable RPC.
+type RoutingTableArgs struct{}
+
+// Reply for the RoutingTable RPC.
+type RoutingTableReply struct {
+	RoutingTable string
 }

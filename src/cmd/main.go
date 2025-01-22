@@ -30,9 +30,17 @@ type cmdOptions struct {
 // Global instance of cmdOptions
 var opts cmdOptions
 
+// Commands with no positional arguments.
+var noPosArgs map[string]bool
+
 // The function parseArgs is responsible for command line
 // argument parsing.
 func parseArgs() {
+	noPosArgs = map[string]bool{
+		"daemon":        true,
+		"routing_table": true,
+	}
+
 	opts.bootstrap = true
 	opts.nodeListenAddr = defaultNodeListenAddr
 	opts.rpcListenAddr = defaultRpcListenAddr
@@ -44,7 +52,7 @@ func parseArgs() {
 	}
 	optStart, optStop := 2, argLen
 	opts.cmd = os.Args[1]
-	if opts.cmd != "daemon" {
+	if _, ok := noPosArgs[opts.cmd]; !ok {
 		opts.target = os.Args[argLen-1]
 		optStop--
 	}
@@ -64,13 +72,18 @@ func parseArgs() {
 }
 
 // Wrapper for RPC calls.
-func RPCSessionManager(f func(client *rpc.Client) error) error {
+func RPCSessionManager(f func(client *rpc.Client) error) {
 	client, err := rpc.DialHTTP("tcp", opts.rpcListenAddr)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		os.Exit(1)
 	}
 	defer client.Close()
-	return f(client)
+	err = f(client)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 // Akademi entrypoint.
@@ -82,13 +95,9 @@ func main() {
 	case "ping":
 		args := akademiRPC.PingArgs{Host: core.Host(opts.target)}
 		reply := akademiRPC.PingReply{}
-		err := RPCSessionManager(func(client *rpc.Client) error {
+		RPCSessionManager(func(client *rpc.Client) error {
 			return client.Call("AkademiNodeRPCServer.Ping", args, &reply)
 		})
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
 		fmt.Print("Received reply from ", opts.target, ". NodeID: ", reply.Header.NodeID, ".\n")
 	case "lookup":
 		idBytes, err := base32.StdEncoding.DecodeString(opts.target)
@@ -100,14 +109,17 @@ func main() {
 		copy(id[:], idBytes)
 		args := akademiRPC.LookupArgs{ID: id}
 		reply := akademiRPC.LookupReply{}
-		err = RPCSessionManager(func(client *rpc.Client) error {
+		RPCSessionManager(func(client *rpc.Client) error {
 			return client.Call("AkademiNodeRPCServer.Lookup", args, &reply)
 		})
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
 		fmt.Print("Node located successfully. Address: ", reply.RoutingEntry, ".\n")
+	case "routing_table":
+		args := akademiRPC.RoutingTableArgs{}
+		reply := akademiRPC.RoutingTableReply{}
+		RPCSessionManager(func(client *rpc.Client) error {
+			return client.Call("AkademiNodeRPCServer.RoutingTable", args, &reply)
+		})
+		fmt.Print("Node routing table:\n", reply.RoutingTable, "\n")
 	default:
 		fmt.Print("Command \"", opts.cmd, "\" not found.\n")
 		os.Exit(1)
