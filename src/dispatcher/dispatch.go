@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"github.com/gsergey418alt/akademi/core"
 	"github.com/gsergey418alt/akademi/pb"
@@ -19,6 +20,12 @@ func (u *UDPDispatcher) dispatchUDPBytes(host core.Host, buf []byte) ([]byte, er
 		return nil, err
 	}
 	defer conn.Close()
+
+	err = conn.SetDeadline(time.Now().Add(1 * time.Second))
+	if err != nil {
+		return nil, err
+	}
+
 	log.Print("Dispatching request to ", host, ": ", len(buf), " bytes.")
 	_, err = conn.Write(buf)
 	if err != nil {

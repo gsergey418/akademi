@@ -29,11 +29,11 @@ swarm: docker
 	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} || ${DOCKER_CMD} network create ${DOCKER_NETWORK}
 
-	${DOCKER_CMD} run -d -p 127.0.0.1:3865:3865 -p 127.0.0.1:3855:3855 --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}1 akademi /bin/akademi daemon --no-bootstrap --rpc-addr 0.0.0.0:3855;\
-	for i in $$(seq 2 ${BOOTSTRAP_NODES}); do\
+	for i in $$(seq ${BOOTSTRAP_NODES}); do\
 		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}$$i akademi /bin/akademi daemon --no-bootstrap;\
 	done
-	for i in $$(seq ${SWARM_PEERS}); do\
+	${DOCKER_CMD} run -d -p 127.0.0.1:3865:3865 -p 127.0.0.1:3855:3855 --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}1 akademi /bin/akademi daemon --rpc-addr 0.0.0.0:3855
+	for i in $$(seq 2 ${SWARM_PEERS}); do\
 		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi;\
 	done
 

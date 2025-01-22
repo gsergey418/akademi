@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base32"
 	"fmt"
 	"log"
 	"net/rpc"
@@ -20,7 +21,7 @@ const (
 // Settings populated by parseArgs()
 type cmdOptions struct {
 	cmd            string
-	targetHost     string
+	target         string
 	rpcListenAddr  string
 	nodeListenAddr string
 	bootstrap      bool
@@ -44,7 +45,7 @@ func parseArgs() {
 	optStart, optStop := 2, argLen
 	opts.cmd = os.Args[1]
 	if opts.cmd != "daemon" {
-		opts.targetHost = os.Args[argLen-1]
+		opts.target = os.Args[argLen-1]
 		optStop--
 	}
 	for i := optStart; i < optStop; i++ {
@@ -79,7 +80,7 @@ func main() {
 	case "daemon":
 		log.Fatal(daemon.Daemon(opts.nodeListenAddr, opts.bootstrap, opts.rpcListenAddr))
 	case "ping":
-		args := akademiRPC.PingArgs{Host: core.Host(opts.targetHost)}
+		args := akademiRPC.PingArgs{Host: core.Host(opts.target)}
 		reply := akademiRPC.PingReply{}
 		err := RPCSessionManager(func(client *rpc.Client) error {
 			return client.Call("AkademiNodeRPCServer.Ping", args, &reply)
@@ -88,7 +89,25 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Print("Received reply from ", opts.targetHost, ". NodeID: ", reply.Header.NodeID, ".\n")
+		fmt.Print("Received reply from ", opts.target, ". NodeID: ", reply.Header.NodeID, ".\n")
+	case "lookup":
+		idBytes, err := base32.StdEncoding.DecodeString(opts.target)
+		if err != nil || len(idBytes) != core.IDLength {
+			fmt.Print("Wrong ID format, use ", core.IDLength, "-byte base32 string.")
+			os.Exit(1)
+		}
+		var id core.BaseID
+		copy(id[:], idBytes)
+		args := akademiRPC.LookupArgs{ID: id}
+		reply := akademiRPC.LookupReply{}
+		err = RPCSessionManager(func(client *rpc.Client) error {
+			return client.Call("AkademiNodeRPCServer.Lookup", args, &reply)
+		})
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		fmt.Print("Node located successfully. Address: ", reply.RoutingEntry, ".\n")
 	default:
 		fmt.Print("Command \"", opts.cmd, "\" not found.\n")
 		os.Exit(1)

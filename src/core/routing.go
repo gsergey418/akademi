@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"sync"
 )
 
 // Pretty-print RoutingEntry.
@@ -13,6 +14,9 @@ func (r RoutingEntry) String() string {
 
 // Update the routing table with a new entry.
 func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
+	if r.NodeID == a.NodeID {
+		return fmt.Errorf("Can't put your own ID into the routing table.")
+	}
 	prefix := r.NodeID.GetPrefixLength(a.NodeID)
 	a.routingTable.lock.Lock()
 	for i, v := range a.routingTable.data[prefix] {
@@ -31,7 +35,7 @@ func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 
 // Gets the BucketSize closest nodes to the passed
 // argument.
-func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) []RoutingEntry {
+func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) ([]RoutingEntry, error) {
 	var nodes []RoutingEntry
 	i := a.NodeID.GetPrefixLength(nodeID)
 	a.routingTable.lock.Lock()
@@ -40,14 +44,75 @@ func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) []RoutingEntry 
 		i--
 	}
 	a.routingTable.lock.Unlock()
+	if len(nodes) == 0 {
+		return nodes, fmt.Errorf("Node doesn't exist.")
+	}
 	sort.Sort(sortBucketByDistance{NodeID: nodeID, Bucket: &nodes})
-	return nodes
+	return nodes, nil
 }
 
 // Locates a BaseID across the network.
-func (a *AkademiNode) locateNode(nodeID BaseID) (RoutingEntry, error) {
-	a.GetClosestNodes(nodeID, ConcurrentRequests)
-	panic("Function locateNode not implemented.")
+func (a *AkademiNode) Lookup(nodeID BaseID, amount int) ([]RoutingEntry, error) {
+	nodes, err := a.GetClosestNodes(nodeID, ConcurrentRequests)
+	if err != nil {
+		return nodes, err
+	}
+	if nodeID == a.NodeID {
+		return []RoutingEntry{}, fmt.Errorf("Can't do a lookup on your own ID.")
+	}
+	if nodes[0].NodeID == nodeID {
+		return nodes[:amount], nil
+	}
+
+	var wg sync.WaitGroup
+	queriedHosts := map[Host]bool{}
+	prevClosestNode := RoutingEntry{}
+
+	for nodes[0] != prevClosestNode {
+		reqCounter := 0
+		if nodes[0].NodeID == nodeID {
+			return nodes[:amount], nil
+		}
+		for i := 0; i < len(nodes) && reqCounter < ConcurrentRequests; i++ {
+			if _, ok := queriedHosts[nodes[i].Host]; ok == false {
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					_, _, err := a.FindNode(nodes[i].Host, nodeID)
+					if err != nil {
+						log.Print(err)
+					}
+				}()
+				queriedHosts[nodes[i].Host] = true
+				reqCounter++
+			}
+		}
+		wg.Wait()
+		prevClosestNode = nodes[0]
+		nodes, err = a.GetClosestNodes(nodeID, ConcurrentRequests)
+		if err != nil {
+			return nodes, err
+		}
+	}
+
+	reqCounter := 0
+	for i := 0; i < len(nodes) && reqCounter < BucketSize; i++ {
+		if _, ok := queriedHosts[nodes[i].Host]; ok == false {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				_, _, err := a.FindNode(nodes[i].Host, nodeID)
+				if err != nil {
+					log.Print(err)
+				}
+			}()
+			queriedHosts[nodes[i].Host] = true
+			reqCounter++
+		}
+	}
+	wg.Wait()
+
+	return nodes[:amount], nil
 }
 
 // Print all the entries in the routing table.
