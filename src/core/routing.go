@@ -14,6 +14,7 @@ func (r RoutingEntry) String() string {
 // Update the routing table with a new entry.
 func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 	prefix := r.NodeID.GetPrefixLength(a.NodeID)
+	a.routingTable.lock.Lock()
 	for i, v := range a.routingTable.data[prefix] {
 		if v.NodeID == r.NodeID || v.Host == r.Host {
 			a.routingTable.data[prefix] = append(a.routingTable.data[prefix][:i], a.routingTable.data[prefix][i+1:]...)
@@ -24,6 +25,7 @@ func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 		return fmt.Errorf("RoutingError: Bucket already full.")
 	}
 	a.routingTable.data[prefix] = append(a.routingTable.data[prefix], r)
+	a.routingTable.lock.Unlock()
 	return nil
 }
 
@@ -32,10 +34,12 @@ func (a *AkademiNode) UpdateRoutingTable(r RoutingEntry) error {
 func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) []RoutingEntry {
 	var nodes []RoutingEntry
 	i := a.NodeID.GetPrefixLength(nodeID)
+	a.routingTable.lock.Lock()
 	for i >= 0 && len(nodes) < amount {
 		nodes = append(nodes, a.routingTable.data[i][:]...)
 		i--
 	}
+	a.routingTable.lock.Unlock()
 	sort.Sort(sortBucketByDistance{NodeID: nodeID, Bucket: &nodes})
 	return nodes
 }
