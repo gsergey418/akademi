@@ -8,18 +8,19 @@ import (
 	"github.com/gsergey418alt/akademi/core"
 	"github.com/gsergey418alt/akademi/dispatcher"
 	"github.com/gsergey418alt/akademi/listener"
+	"github.com/gsergey418alt/akademi/node"
 	"github.com/gsergey418alt/akademi/rpc"
 )
 
 // getDispatcher returns an instance of the Dispatcher
 // interface.
-func getDispatcher() core.Dispatcher {
+func getDispatcher() node.Dispatcher {
 	return &dispatcher.UDPDispatcher{}
 }
 
 // getAkademiNode creates and initializes an AkademiNode.
-func getAkademiNode() (*core.AkademiNode, error) {
-	a := &core.AkademiNode{}
+func getAkademiNode() (*node.AkademiNode, error) {
+	a := &node.AkademiNode{}
 	return a, nil
 }
 
@@ -31,14 +32,14 @@ func parseIPPort(listenAddrString string) (core.IPPort, error) {
 
 // getListener creates an instance of the Listener
 // interface.
-func getListener(a *core.AkademiNode, listenAddr string) Listener {
+func getListener(a *node.AkademiNode, listenAddr string) Listener {
 	l := &listener.UDPListener{}
 	l.Initialize(listenAddr, a)
 	return l
 }
 
 // getRPCserver returns an RPC server instance.
-func getRPCServer(a *core.AkademiNode, listenAddr string) rpcServer {
+func getRPCServer(a *node.AkademiNode, listenAddr string) rpcServer {
 	r := &rpc.AkademiNodeRPCServer{}
 	r.Initialize(a, listenAddr)
 	return r

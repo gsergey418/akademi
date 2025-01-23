@@ -10,7 +10,7 @@ import (
 
 func TestPing(t *testing.T) {
 	d := &dispatcher.UDPDispatcher{}
-	d.Initialize(core.RoutingHeader{NodeID: core.RandomBaseID(), ListenPort: core.IPPort(3865)})
+	d.Initialize(core.RoutingHeader{NodeID: core.RandomBaseID(), ListenPort: core.IPPort(1337)})
 	header, err := d.Ping(core.Host("127.0.0.1:3865"))
 	if err != nil {
 		panic(err)

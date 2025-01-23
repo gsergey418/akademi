@@ -8,16 +8,17 @@ import (
 	"net/rpc"
 
 	"github.com/gsergey418alt/akademi/core"
+	"github.com/gsergey418alt/akademi/node"
 )
 
 // Structure for exposing an RPC API for node control.
 type AkademiNodeRPCServer struct {
 	ListenAddr  string
-	AkademiNode *core.AkademiNode
+	AkademiNode *node.AkademiNode
 }
 
 // Sets the underlying listen address and AkademiNode.
-func (s *AkademiNodeRPCServer) Initialize(n *core.AkademiNode, listenAddr string) {
+func (s *AkademiNodeRPCServer) Initialize(n *node.AkademiNode, listenAddr string) {
 	s.ListenAddr = listenAddr
 	s.AkademiNode = n
 }

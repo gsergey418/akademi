@@ -1,4 +1,4 @@
-package core
+package node
 
 import (
 	"fmt"
@@ -7,60 +7,31 @@ import (
 
 	mrand "math/rand"
 	"time"
-)
 
-// AkademiNode constants.
-const (
-	IDLength           = 20
-	BucketSize         = 20
-	ConcurrentRequests = 3
-	Bootstraps         = 3
+	"github.com/gsergey418alt/akademi/core"
 )
 
 // List of bootstrap nodes used for first connecting to
 // the network.
-var BootstrapList = [...]Host{
+var BootstrapList = [...]core.Host{
 	"akademi_bootstrap_1:3865",
 	"akademi_bootstrap_2:3865",
 	"akademi_bootstrap_3:3865",
 }
 
-// Akademi uses node and key IDs, whose length is defined
-// in bytes by IDLength.
-type BaseID [IDLength]byte
-
-// Separate IPPort type because the IP address is
-// identified by receiving node.
-type IPPort uint16
-
-// Host is used to identify node's IP address and
-// port.
-type Host string
-
-// DataBytes is a type for values to be stored in akademi
-// nodes.
-type DataBytes []byte
-
-// RoutingEntry is a structure that stores routing
-// information about an akademi node.
-type RoutingEntry struct {
-	Host   Host
-	NodeID BaseID
-}
-
 // AkademiNode is a structure containing the core kademlia
 // logic.
 type AkademiNode struct {
-	NodeID        BaseID
-	ListenPort    IPPort
+	NodeID        core.BaseID
+	ListenPort    core.IPPort
 	StartTime     time.Time
 	keyValueStore struct {
-		data map[BaseID][]byte
+		data map[core.BaseID][]byte
 		lock sync.Mutex
 	}
 
 	routingTable struct {
-		data [IDLength*8 + 1][]RoutingEntry
+		data [core.IDLength*8 + 1][]core.RoutingEntry
 		lock sync.Mutex
 	}
 
@@ -69,24 +40,24 @@ type AkademiNode struct {
 
 // The initialize function assigns a random NodeID to the
 // AkademiNode.
-func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort IPPort, bootstrap bool) error {
+func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, bootstrap bool) error {
 	a.ListenPort = listenPort
-	a.NodeID = RandomBaseID()
+	a.NodeID = core.RandomBaseID()
 	a.StartTime = time.Now()
 	log.Print("Initializing Akademi node. NodeID: ", a.NodeID)
 
 	a.dispatcher = dispatcher
-	err := a.dispatcher.Initialize(RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
+	err := a.dispatcher.Initialize(core.RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
 	if err != nil {
 		return err
 	}
 
 	if bootstrap {
 		bootstrapHosts := BootstrapList[:]
-		for bootstrapCount := 0; bootstrapCount < Bootstraps; bootstrapCount++ {
+		for bootstrapCount := 0; bootstrapCount < core.Bootstraps; bootstrapCount++ {
 			var i int
 			var err error
-			var header RoutingHeader
+			var header core.RoutingHeader
 			i = mrand.Intn(len(bootstrapHosts))
 			header, _, err = a.FindNode(bootstrapHosts[i], a.NodeID)
 			for err != nil {

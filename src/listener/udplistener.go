@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"github.com/gsergey418alt/akademi/core"
+	"github.com/gsergey418alt/akademi/node"
 	"github.com/gsergey418alt/akademi/pb"
 	"google.golang.org/protobuf/proto"
 )
@@ -15,14 +16,14 @@ import (
 // encoded data via a UDP socket.
 type UDPListener struct {
 	ListenAddr  *net.UDPAddr
-	AkademiNode *core.AkademiNode
+	AkademiNode *node.AkademiNode
 
 	udpReadBuffer [65535]byte
 	udpConn       *net.UDPConn
 }
 
 // Parse listenAddrString and set AkademiNode.
-func (u *UDPListener) Initialize(listenAddrStr string, a *core.AkademiNode) error {
+func (u *UDPListener) Initialize(listenAddrStr string, a *node.AkademiNode) error {
 	listenAddr, err := net.ResolveUDPAddr("udp", listenAddrStr)
 	if err != nil {
 		return err

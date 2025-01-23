@@ -4,10 +4,11 @@ import (
 	"testing"
 
 	"github.com/gsergey418alt/akademi/core"
+	"github.com/gsergey418alt/akademi/node"
 )
 
 func TestUpdateRoutingTable(t *testing.T) {
-	a := core.AkademiNode{}
+	a := node.AkademiNode{}
 	a.NodeID = core.RandomBaseID()
 	r1 := core.RoutingEntry{
 		NodeID: core.RandomBaseID(),
