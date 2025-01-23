@@ -39,13 +39,16 @@ func (a *AkademiNode) GetClosestNodes(nodeID BaseID, amount int) ([]RoutingEntry
 
 	a.routingTable.lock.Lock()
 	nodes = append(nodes, a.routingTable.data[prefix][:]...)
-	for i := 1; (i <= prefix || i < IDLength*8+1-prefix) && len(nodes) < amount; i++ {
-		if i <= prefix {
-			nodes = append(nodes, a.routingTable.data[prefix-i][:]...)
-		}
-		if i < IDLength*8+1 {
-			nodes = append(nodes, a.routingTable.data[prefix+i][:]...)
-		}
+	var i int
+	for i = 1; i <= prefix && i < IDLength*8+1-prefix && len(nodes) < amount; i++ {
+		nodes = append(nodes, a.routingTable.data[prefix-i][:]...)
+		nodes = append(nodes, a.routingTable.data[prefix+i][:]...)
+	}
+	for ; i <= prefix && len(nodes) < amount; i++ {
+		nodes = append(nodes, a.routingTable.data[prefix-i][:]...)
+	}
+	for ; i < IDLength*8+1-prefix && len(nodes) < amount; i++ {
+		nodes = append(nodes, a.routingTable.data[prefix+i][:]...)
 	}
 	a.routingTable.lock.Unlock()
 
@@ -61,9 +64,6 @@ func (a *AkademiNode) Lookup(nodeID BaseID, amount int) ([]RoutingEntry, error) 
 	nodes, err := a.GetClosestNodes(nodeID, ConcurrentRequests)
 	if err != nil {
 		return nodes, err
-	}
-	if nodeID == a.NodeID {
-		return []RoutingEntry{}, fmt.Errorf("Can't do a lookup on your own ID.")
 	}
 	if nodes[0].NodeID == nodeID {
 		return nodes[:amount], nil
