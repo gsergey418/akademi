@@ -33,6 +33,15 @@ func (id BaseID) String() string {
 	return base32.StdEncoding.EncodeToString(id[:])
 }
 
+// Create a BaseID from base32.
+func B32ToID(s string) (BaseID, error) {
+	bytes, err := base32.StdEncoding.DecodeString(s)
+	if err != nil || len(bytes) != IDLength {
+		return BaseID{}, fmt.Errorf("Wrong ID format, use %d-byte base32 string.\n", IDLength)
+	}
+	return BaseID(bytes), nil
+}
+
 // Returns random BaseID.
 func RandomBaseID() BaseID {
 	var o BaseID

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base32"
 	"fmt"
 	"log"
 	"net/rpc"
@@ -101,13 +100,11 @@ func main() {
 		})
 		fmt.Print("Received reply from ", opts.target, ". NodeID: ", reply.Header.NodeID, ".\n")
 	case "lookup":
-		idBytes, err := base32.StdEncoding.DecodeString(opts.target)
-		if err != nil || len(idBytes) != core.IDLength {
-			fmt.Print("Wrong ID format, use ", core.IDLength, "-byte base32 string.\n")
+		id, err := core.B32ToID(opts.target)
+		if err != nil {
+			fmt.Println(err)
 			os.Exit(1)
 		}
-		var id core.BaseID
-		copy(id[:], idBytes)
 		args := akademiRPC.LookupArgs{ID: id}
 		reply := akademiRPC.LookupReply{}
 		RPCSessionManager(func(client *rpc.Client) error {
