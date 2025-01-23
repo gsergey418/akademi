@@ -62,13 +62,37 @@ func (u *UDPDispatcher) FindNode(host core.Host, nodeID core.BaseID) (core.Routi
 // The FindKey function dispatches a FindKey RPC call to
 // node located at host.
 func (u *UDPDispatcher) FindKey(host core.Host, keyID core.BaseID) (core.RoutingHeader, core.DataBytes, []core.RoutingEntry, error) {
-	panic("Function FindKey not implemented.")
+	nodes := []core.RoutingEntry{}
+
+	req := &pb.BaseMessage{}
+	req.Message = &pb.BaseMessage_FindKeyRequest{FindKeyRequest: &pb.FindKeyRequest{KeyID: keyID[:]}}
+	res, err := u.dispatchUDPMessage(host, req)
+	if err != nil {
+		return core.RoutingHeader{}, nil, nodes, err
+	}
+
+	data := core.DataBytes(res.GetFindKeyResponse().Data)
+	for _, v := range res.GetFindKeyResponse().GetRoutingEntry() {
+		nodes = append(nodes, core.RoutingEntry{
+			Host:   core.Host(v.Address),
+			NodeID: core.BaseID(v.NodeID),
+		})
+	}
+	return u.parseRoutingHeader(res), data, nodes, nil
 }
 
 // The Store function dispatches a Store RPC call to node
 // located at host.
 func (u *UDPDispatcher) Store(host core.Host, data core.DataBytes) (core.RoutingHeader, error) {
-	panic("Function Store not implemented.")
+	req := &pb.BaseMessage{}
+	msg := &pb.BaseMessage_StoreRequest{}
+	msg.StoreRequest.Data = data
+	req.Message = msg
+	res, err := u.dispatchUDPMessage(host, req)
+	if err != nil {
+		return core.RoutingHeader{}, err
+	}
+	return u.parseRoutingHeader(res), nil
 }
 
 // Returns random RequestID.

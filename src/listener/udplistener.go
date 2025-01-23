@@ -84,6 +84,31 @@ func (u *UDPListener) reqMux(host *net.UDPAddr, req *pb.BaseMessage) error {
 		}
 		res.Message = &pb.BaseMessage_FindNodeResponse{FindNodeResponse: msg}
 		return u.sendUDPMessage(host, res, req)
+	case req.GetFindKeyRequest() != nil:
+		res := &pb.BaseMessage{}
+		msg := &pb.FindKeyResponse{}
+		data := u.AkademiNode.Get(core.BaseID(req.GetFindKeyRequest().KeyID))
+		if data != nil {
+			msg.Data = data
+		} else {
+			nodes, err := u.AkademiNode.GetClosestNodes(core.BaseID(req.GetFindKeyRequest().KeyID), core.BucketSize)
+			if err != nil {
+				return err
+			}
+			for _, v := range nodes {
+				msg.RoutingEntry = append(msg.RoutingEntry, &pb.RoutingEntry{
+					Address: string(v.Host),
+					NodeID:  v.NodeID[:],
+				})
+			}
+		}
+		res.Message = &pb.BaseMessage_FindKeyResponse{FindKeyResponse: msg}
+		return u.sendUDPMessage(host, res, req)
+	case req.GetStoreRequest() != nil:
+		res := &pb.BaseMessage{}
+		u.AkademiNode.Set(req.GetStoreRequest().Data)
+		res.Message = &pb.BaseMessage_StoreResponse{}
+		return u.sendUDPMessage(host, res, req)
 	}
 	return nil
 }

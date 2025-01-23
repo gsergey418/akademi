@@ -6,6 +6,7 @@ import "fmt"
 const (
 	IDLength           = 20
 	BucketSize         = 20
+	Replication        = 5
 	ConcurrentRequests = 3
 	Bootstraps         = 3
 )

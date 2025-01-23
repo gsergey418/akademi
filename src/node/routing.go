@@ -165,6 +165,74 @@ func (a *AkademiNode) Lookup(nodeID core.BaseID, amount int) ([]core.RoutingEntr
 	return nodes[:amount], nil
 }
 
+// Locates a core.BaseID across the network with FindKey.
+func (a *AkademiNode) KeyLookup(keyID core.BaseID) (core.DataBytes, error) {
+	nodes, err := a.GetClosestNodes(keyID, core.ConcurrentRequests)
+	if err != nil {
+		return nil, err
+	}
+
+	queriedHosts := map[core.Host]bool{}
+	prevClosestNode := core.RoutingEntry{}
+
+	var c chan core.DataBytes
+
+	for nodes[0] != prevClosestNode {
+		reqCounter := 0
+		for i := 0; i < len(nodes) && reqCounter < core.ConcurrentRequests; i++ {
+			if _, ok := queriedHosts[nodes[i].Host]; ok == false {
+				go func() {
+					_, data, _, err := a.FindKey(nodes[i].Host, keyID)
+					c <- data
+					if err != nil {
+						log.Print(err)
+					}
+				}()
+				queriedHosts[nodes[i].Host] = true
+				reqCounter++
+			}
+		}
+		for i := 0; i < reqCounter; i++ {
+			data := <-c
+			if data != nil {
+				return data, nil
+			}
+		}
+		prevClosestNode = nodes[0]
+		nodes, err = a.GetClosestNodes(keyID, core.ConcurrentRequests)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	reqCounter := 0
+	for i := 0; i < len(nodes) && reqCounter < core.BucketSize; i++ {
+		if _, ok := queriedHosts[nodes[i].Host]; ok == false {
+			go func() {
+				_, data, _, err := a.FindKey(nodes[i].Host, keyID)
+				c <- data
+				if err != nil {
+					log.Print(err)
+				}
+			}()
+			queriedHosts[nodes[i].Host] = true
+			reqCounter++
+		}
+	}
+	for i := 0; i < reqCounter; i++ {
+		data := <-c
+		if data != nil {
+			return data, nil
+		}
+	}
+	nodes, err = a.GetClosestNodes(keyID, core.ConcurrentRequests)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, fmt.Errorf("Requested key not found.")
+}
+
 // Get all the entries in the routing table as a string.
 func (a *AkademiNode) RoutingTableString() (table string) {
 	for _, bucket := range a.routingTable.data {
