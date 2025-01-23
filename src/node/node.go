@@ -11,14 +11,6 @@ import (
 	"github.com/gsergey418alt/akademi/core"
 )
 
-// List of bootstrap nodes used for first connecting to
-// the network.
-var BootstrapList = [...]core.Host{
-	"akademi_bootstrap_1:3865",
-	"akademi_bootstrap_2:3865",
-	"akademi_bootstrap_3:3865",
-}
-
 // AkademiNode is a structure containing the core kademlia
 // logic.
 type AkademiNode struct {
@@ -40,7 +32,7 @@ type AkademiNode struct {
 
 // The initialize function assigns a random NodeID to the
 // AkademiNode.
-func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, bootstrap bool) error {
+func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, bootstrap bool, bootstrapList []core.Host) error {
 	a.ListenPort = listenPort
 	a.NodeID = core.RandomBaseID()
 	a.StartTime = time.Now()
@@ -52,9 +44,12 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, 
 		return err
 	}
 
+	a.dataStore.data = make(map[core.BaseID][]byte)
+
 	if bootstrap {
-		bootstrapHosts := BootstrapList[:]
-		for bootstrapCount := 0; bootstrapCount < core.Bootstraps; bootstrapCount++ {
+		log.Print("Initiating node bootstrap. Hosts: ", bootstrapList, ".")
+		bootstrapHosts := bootstrapList
+		for bootstrapCount := 0; bootstrapCount < min(core.Bootstraps, len(bootstrapList)); bootstrapCount++ {
 			var i int
 			var err error
 			var header core.RoutingHeader
@@ -66,7 +61,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, 
 				i = rand.Intn(len(bootstrapHosts))
 				header, _, err = a.FindNode(bootstrapHosts[i], a.NodeID)
 			}
-			log.Print("Connected to bootstrap node \"", BootstrapList[i], "\". NodeID: ", header.NodeID)
+			log.Print("Connected to bootstrap node \"", bootstrapList[i], "\". NodeID: ", header.NodeID)
 			bootstrapHosts = append(bootstrapHosts[:i], bootstrapHosts[i+1:]...)
 		}
 		log.Print("Bootstrapping process finished.")

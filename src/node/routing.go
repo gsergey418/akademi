@@ -107,7 +107,7 @@ func (a *AkademiNode) Lookup(nodeID core.BaseID, amount int) ([]core.RoutingEntr
 		return nodes, err
 	}
 	if nodes[0].NodeID == nodeID {
-		return nodes[:amount], nil
+		return nodes[:min(amount, len(nodes))], nil
 	}
 
 	var wg sync.WaitGroup
@@ -132,7 +132,7 @@ func (a *AkademiNode) Lookup(nodeID core.BaseID, amount int) ([]core.RoutingEntr
 		}
 		wg.Wait()
 		if nodes[0].NodeID == nodeID {
-			return nodes[:amount], nil
+			return nodes[:min(amount, len(nodes))], nil
 		}
 		prevClosestNode = nodes[0]
 		nodes, err = a.GetClosestNodes(nodeID, core.ConcurrentRequests)
@@ -162,7 +162,7 @@ func (a *AkademiNode) Lookup(nodeID core.BaseID, amount int) ([]core.RoutingEntr
 		return nodes, err
 	}
 
-	return nodes[:amount], nil
+	return nodes[:min(amount, len(nodes))], nil
 }
 
 // Locates a core.BaseID across the network with FindKey.

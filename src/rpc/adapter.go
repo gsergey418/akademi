@@ -81,3 +81,10 @@ func (s *AkademiNodeRPCServer) Bootstrap(args *BootstrapArgs, reply *BootstrapRe
 	_, _, err := s.AkademiNode.FindNode(args.Host, s.AkademiNode.NodeID)
 	return err
 }
+
+// Gets the node datastore as a string.
+func (s *AkademiNodeRPCServer) Store(args *StoreArgs, reply *StoreReply) error {
+	keyID, err := s.AkademiNode.DHTStore(args.Data)
+	reply.KeyID = keyID
+	return err
+}

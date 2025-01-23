@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/rpc"
 	"os"
+	"strings"
 
 	"github.com/gsergey418alt/akademi/core"
 	"github.com/gsergey418alt/akademi/daemon"
@@ -24,6 +25,7 @@ type cmdOptions struct {
 	rpcListenAddr  string
 	nodeListenAddr string
 	bootstrap      bool
+	bootstrapList  []core.Host
 }
 
 // Global instance of cmdOptions
@@ -41,6 +43,11 @@ func parseArgs() {
 
 	// Default values for command-line options.
 	opts.bootstrap = true
+	opts.bootstrapList = []core.Host{
+		"akademi_bootstrap_1:3865",
+		"akademi_bootstrap_2:3865",
+		"akademi_bootstrap_3:3865",
+	}
 	opts.nodeListenAddr = defaultNodeListenAddr
 	opts.rpcListenAddr = defaultRpcListenAddr
 
@@ -60,8 +67,17 @@ func parseArgs() {
 		switch os.Args[i] {
 		case "--no-bootstrap":
 			opts.bootstrap = false
+		case "--bootstrap-nodes":
+			opts.bootstrapList = []core.Host{}
+			for _, v := range strings.Split(os.Args[i+1], ",") {
+				opts.bootstrapList = append(opts.bootstrapList, core.Host(v))
+			}
+			i++
 		case "--rpc-addr":
 			opts.rpcListenAddr = os.Args[i+1]
+			i++
+		case "--listen-addr":
+			opts.nodeListenAddr = os.Args[i+1]
 			i++
 		default:
 			fmt.Print("Unknown argument: \"", os.Args[i], "\".\n")
@@ -91,7 +107,7 @@ func main() {
 	parseArgs()
 	switch opts.cmd {
 	case "daemon":
-		log.Fatal(daemon.Daemon(opts.nodeListenAddr, opts.bootstrap, opts.rpcListenAddr))
+		log.Fatal(daemon.Daemon(opts.nodeListenAddr, opts.bootstrap, opts.bootstrapList, opts.rpcListenAddr))
 	case "ping":
 		args := akademiRPC.PingArgs{Host: core.Host(opts.target)}
 		reply := akademiRPC.PingReply{}
@@ -125,7 +141,6 @@ func main() {
 			return client.Call("AkademiNodeRPCServer.DataStore", args, &reply)
 		})
 		fmt.Print("Node datastore:\n", reply.DataStore, "\n")
-
 	case "info":
 		args := akademiRPC.NodeInfoArgs{}
 		reply := akademiRPC.NodeInfoReply{}
@@ -140,6 +155,13 @@ func main() {
 			return client.Call("AkademiNodeRPCServer.Bootstrap", args, &reply)
 		})
 		fmt.Print("Successfully bootstrapped node with ", opts.target, ".\n")
+	case "store":
+		args := akademiRPC.StoreArgs{Data: core.DataBytes(opts.target)}
+		reply := akademiRPC.StoreReply{}
+		RPCSessionManager(func(client *rpc.Client) error {
+			return client.Call("AkademiNodeRPCServer.Store", args, &reply)
+		})
+		fmt.Print("Data stored on the DHT successfully. KeyID: ", reply.KeyID, ".\n")
 	default:
 		fmt.Print("Command \"", opts.cmd, "\" not found.\n")
 		os.Exit(1)

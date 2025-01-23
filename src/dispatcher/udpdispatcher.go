@@ -85,8 +85,7 @@ func (u *UDPDispatcher) FindKey(host core.Host, keyID core.BaseID) (core.Routing
 // located at host.
 func (u *UDPDispatcher) Store(host core.Host, data core.DataBytes) (core.RoutingHeader, error) {
 	req := &pb.BaseMessage{}
-	msg := &pb.BaseMessage_StoreRequest{}
-	msg.StoreRequest.Data = data
+	msg := &pb.BaseMessage_StoreRequest{StoreRequest: &pb.StoreRequest{Data: data}}
 	req.Message = msg
 	res, err := u.dispatchUDPMessage(host, req)
 	if err != nil {

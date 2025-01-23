@@ -52,7 +52,7 @@ func AsyncWrapper(c chan error, f func() error) {
 }
 
 // Main loop of Akademi.
-func Daemon(listenAddr string, bootstrap bool, rpcListenAddr string) error {
+func Daemon(listenAddr string, bootstrap bool, bootstrapList []core.Host, rpcListenAddr string) error {
 	listenPort, err := parseIPPort(listenAddr)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func Daemon(listenAddr string, bootstrap bool, rpcListenAddr string) error {
 		go AsyncWrapper(c, rpcServer.Serve)
 	}
 
-	err = node.Initialize(dis, listenPort, bootstrap)
+	err = node.Initialize(dis, listenPort, bootstrap, bootstrapList)
 	if err != nil {
 		return err
 	}

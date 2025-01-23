@@ -1,7 +1,7 @@
 package core
 
 import (
-	crand "crypto/rand"
+	"crypto/rand"
 	"encoding/base32"
 	"fmt"
 	"math/bits"
@@ -45,6 +45,6 @@ func B32ToID(s string) (BaseID, error) {
 // Returns random BaseID.
 func RandomBaseID() BaseID {
 	var o BaseID
-	crand.Read(o[:])
+	rand.Read(o[:])
 	return o
 }

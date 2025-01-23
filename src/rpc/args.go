@@ -27,3 +27,8 @@ type NodeInfoArgs struct{}
 type BootstrapArgs struct {
 	Host core.Host
 }
+
+// Args for the Store RPC.
+type StoreArgs struct {
+	Data core.DataBytes
+}

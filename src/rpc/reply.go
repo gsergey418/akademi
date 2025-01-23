@@ -30,3 +30,8 @@ type NodeInfoReply struct {
 
 // Reply for the Bootstrap RPC.
 type BootstrapReply struct{}
+
+// Reply for the Store RPC.
+type StoreReply struct {
+	KeyID core.BaseID
+}
