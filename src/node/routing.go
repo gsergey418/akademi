@@ -28,6 +28,46 @@ func (a *AkademiNode) UpdateRoutingTable(r core.RoutingEntry) error {
 	return nil
 }
 
+// Returns an iterator for fetching routing entries right of
+// the start point.
+func (a *AkademiNode) rightRoutingTableFetcher(start int) func() (core.RoutingEntry, bool) {
+	prefix := start
+	i := 0
+	return func() (core.RoutingEntry, bool) {
+		for prefix < core.IDLength*8 && i >= len(a.routingTable.data[prefix]) {
+			prefix++
+			i = 0
+		}
+		if prefix < core.IDLength*8 || (prefix == core.IDLength*8 && i < len(a.routingTable.data[prefix])) {
+			r := a.routingTable.data[prefix][i]
+			i++
+			return r, false
+		} else {
+			return core.RoutingEntry{}, true
+		}
+	}
+}
+
+// Returns an iterator for fetching routing entries left of
+// the start point.
+func (a *AkademiNode) leftRoutingTableFetcher(start int) func() (core.RoutingEntry, bool) {
+	prefix := start
+	i := 0
+	return func() (core.RoutingEntry, bool) {
+		for prefix > 0 && i >= len(a.routingTable.data[prefix]) {
+			prefix--
+			i = 0
+		}
+		if prefix > 0 || (prefix == 0 && i < len(a.routingTable.data[prefix])) {
+			r := a.routingTable.data[prefix][i]
+			i++
+			return r, false
+		} else {
+			return core.RoutingEntry{}, true
+		}
+	}
+}
+
 // Gets the core.BucketSize closest nodes to the passed
 // argument.
 func (a *AkademiNode) GetClosestNodes(nodeID core.BaseID, amount int) ([]core.RoutingEntry, error) {
@@ -36,16 +76,20 @@ func (a *AkademiNode) GetClosestNodes(nodeID core.BaseID, amount int) ([]core.Ro
 
 	a.routingTable.lock.Lock()
 	nodes = append(nodes, a.routingTable.data[prefix][:]...)
-	var i int
-	for i = 1; i <= prefix && i < core.IDLength*8+1-prefix && len(nodes) < amount; i++ {
-		nodes = append(nodes, a.routingTable.data[prefix-i][:]...)
-		nodes = append(nodes, a.routingTable.data[prefix+i][:]...)
-	}
-	for ; i <= prefix && len(nodes) < amount; i++ {
-		nodes = append(nodes, a.routingTable.data[prefix-i][:]...)
-	}
-	for ; i < core.IDLength*8+1-prefix && len(nodes) < amount; i++ {
-		nodes = append(nodes, a.routingTable.data[prefix+i][:]...)
+
+	lNext := a.leftRoutingTableFetcher(prefix - 1)
+	rNext := a.rightRoutingTableFetcher(prefix + 1)
+	var l, r core.RoutingEntry
+	var lDone, rDone bool
+	for len(nodes) < amount && (!lDone || !rDone) {
+		l, lDone = lNext()
+		if !lDone {
+			nodes = append(nodes, l)
+		}
+		r, rDone = rNext()
+		if !rDone {
+			nodes = append(nodes, r)
+		}
 	}
 	a.routingTable.lock.Unlock()
 
