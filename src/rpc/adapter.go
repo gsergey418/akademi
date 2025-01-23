@@ -63,6 +63,12 @@ func (s *AkademiNodeRPCServer) RoutingTable(args *RoutingTableArgs, reply *Routi
 	return nil
 }
 
+// Gets the node datastore as a string.
+func (s *AkademiNodeRPCServer) DataStore(args *DataStoreArgs, reply *DataStoreReply) error {
+	reply.DataStore = s.AkademiNode.DataStoreString()
+	return nil
+}
+
 // Gets the node information.
 func (s *AkademiNodeRPCServer) NodeInfo(args *NodeInfoArgs, reply *NodeInfoReply) error {
 	reply.NodeInfo = s.AkademiNode.NodeInfo()

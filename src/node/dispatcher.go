@@ -23,5 +23,5 @@ type Dispatcher interface {
 
 	// The Store function dispatches a Store RPC call to node
 	// located at host.
-	Store(host core.Host, keyID core.BaseID, value core.DataBytes) (core.RoutingHeader, error)
+	Store(host core.Host, data core.DataBytes) (core.RoutingHeader, error)
 }

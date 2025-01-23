@@ -18,6 +18,11 @@ type RoutingTableReply struct {
 	RoutingTable string
 }
 
+// Reply for the DataStore RPC.
+type DataStoreReply struct {
+	DataStore string
+}
+
 // Reply for the NodeInfo RPC.
 type NodeInfoReply struct {
 	NodeInfo string

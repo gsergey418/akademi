@@ -118,6 +118,14 @@ func main() {
 			return client.Call("AkademiNodeRPCServer.RoutingTable", args, &reply)
 		})
 		fmt.Print("Node routing table:\n", reply.RoutingTable, "\n")
+	case "datastore":
+		args := akademiRPC.DataStoreArgs{}
+		reply := akademiRPC.DataStoreReply{}
+		RPCSessionManager(func(client *rpc.Client) error {
+			return client.Call("AkademiNodeRPCServer.DataStore", args, &reply)
+		})
+		fmt.Print("Node datastore:\n", reply.DataStore, "\n")
+
 	case "info":
 		args := akademiRPC.NodeInfoArgs{}
 		reply := akademiRPC.NodeInfoReply{}

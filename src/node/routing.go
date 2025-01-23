@@ -172,7 +172,11 @@ func (a *AkademiNode) RoutingTableString() (table string) {
 			table += fmt.Sprintln(r)
 		}
 	}
-	return table[:len(table)-1]
+	if len(table) > 0 {
+		return table[:len(table)-1]
+	} else {
+		return ""
+	}
 }
 
 // Print the routing table.

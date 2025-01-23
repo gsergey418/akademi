@@ -5,7 +5,7 @@ import (
 	"log"
 	"sync"
 
-	mrand "math/rand"
+	"math/rand"
 	"time"
 
 	"github.com/gsergey418alt/akademi/core"
@@ -22,10 +22,10 @@ var BootstrapList = [...]core.Host{
 // AkademiNode is a structure containing the core kademlia
 // logic.
 type AkademiNode struct {
-	NodeID        core.BaseID
-	ListenPort    core.IPPort
-	StartTime     time.Time
-	keyValueStore struct {
+	NodeID     core.BaseID
+	ListenPort core.IPPort
+	StartTime  time.Time
+	dataStore  struct {
 		data map[core.BaseID][]byte
 		lock sync.Mutex
 	}
@@ -58,12 +58,12 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, 
 			var i int
 			var err error
 			var header core.RoutingHeader
-			i = mrand.Intn(len(bootstrapHosts))
+			i = rand.Intn(len(bootstrapHosts))
 			header, _, err = a.FindNode(bootstrapHosts[i], a.NodeID)
 			for err != nil {
 				log.Print(err)
 				time.Sleep(5 * time.Second)
-				i = mrand.Intn(len(bootstrapHosts))
+				i = rand.Intn(len(bootstrapHosts))
 				header, _, err = a.FindNode(bootstrapHosts[i], a.NodeID)
 			}
 			log.Print("Connected to bootstrap node \"", BootstrapList[i], "\". NodeID: ", header.NodeID)

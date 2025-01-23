@@ -41,13 +41,12 @@ message FindKeyRequest {
 }
 
 message FindKeyResponse {
-    bytes Value = 1;
+    bytes Data = 1;
     repeated RoutingEntry RoutingEntry = 2;
 }
 
 message StoreRequest {
-    bytes KeyID = 1;
-    bytes Value = 2;
+    bytes Data = 2;
 }
 
 message StoreResponse {}

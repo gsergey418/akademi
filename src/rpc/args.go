@@ -17,6 +17,9 @@ type LookupArgs struct {
 // Args for the RoutingTable RPC.
 type RoutingTableArgs struct{}
 
+// Args for the DataStore RPC.
+type DataStoreArgs struct{}
+
 // Args for the NodeInfo RPC.
 type NodeInfoArgs struct{}
 

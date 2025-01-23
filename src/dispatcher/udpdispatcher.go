@@ -67,7 +67,7 @@ func (u *UDPDispatcher) FindKey(host core.Host, keyID core.BaseID) (core.Routing
 
 // The Store function dispatches a Store RPC call to node
 // located at host.
-func (u *UDPDispatcher) Store(host core.Host, keyID core.BaseID, value core.DataBytes) (core.RoutingHeader, error) {
+func (u *UDPDispatcher) Store(host core.Host, data core.DataBytes) (core.RoutingHeader, error) {
 	panic("Function Store not implemented.")
 }
 

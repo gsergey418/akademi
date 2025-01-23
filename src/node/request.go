@@ -55,8 +55,8 @@ func (a *AkademiNode) FindKey(host core.Host, keyID core.BaseID) (core.RoutingHe
 
 // The Store function dispatches a Store RPC call to node
 // located at host.
-func (a *AkademiNode) Store(host core.Host, keyID core.BaseID, value core.DataBytes) (core.RoutingHeader, error) {
-	header, err := a.dispatcher.Store(host, keyID, value)
+func (a *AkademiNode) Store(host core.Host, data core.DataBytes) (core.RoutingHeader, error) {
+	header, err := a.dispatcher.Store(host, data)
 	if err != nil {
 		return header, err
 	}
