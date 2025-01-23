@@ -29,22 +29,22 @@ type cmdOptions struct {
 // Global instance of cmdOptions
 var opts cmdOptions
 
-// Commands with no positional arguments.
-var noPosArgs map[string]bool
-
 // The function parseArgs is responsible for command line
 // argument parsing.
 func parseArgs() {
-	noPosArgs = map[string]bool{
+	// Commands with no positional arguments.
+	noPosArgs := map[string]bool{
 		"daemon":        true,
 		"routing_table": true,
 		"info":          true,
 	}
 
+	// Default values for command-line options.
 	opts.bootstrap = true
 	opts.nodeListenAddr = defaultNodeListenAddr
 	opts.rpcListenAddr = defaultRpcListenAddr
 
+	// Start of argument parsing.
 	argLen := len(os.Args)
 	if argLen < 2 {
 		fmt.Print("Not enough arguments, please provide a command.\n")
