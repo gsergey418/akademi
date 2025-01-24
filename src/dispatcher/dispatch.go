@@ -23,7 +23,7 @@ func (u *UDPDispatcher) dispatchUDPBytes(host core.Host, buf []byte) ([]byte, er
 	}
 	defer conn.Close()
 
-	err = conn.SetDeadline(time.Now().Add(1 * time.Second))
+	err = conn.SetDeadline(time.Now().Add(5 * time.Second))
 	if err != nil {
 		return nil, err
 	}
