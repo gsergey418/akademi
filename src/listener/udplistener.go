@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"runtime"
 
 	"github.com/gsergey418alt/akademi/core"
 	"github.com/gsergey418alt/akademi/node"
@@ -69,13 +70,17 @@ func (u *UDPListener) Listen() error {
 		return err
 	}
 	defer conn.Close()
-	log.Print("UDP listener started on address ", u.ListenAddr, ".")
+
+	cpuCount := runtime.NumCPU()
+	log.Print("UDP listener started on address ", u.ListenAddr, ". Creating ", cpuCount, " workers.")
 
 	errChan := make(chan error)
 	msgChan := make(chan UDPBytes, 1024)
 
 	go u.ListenUDP(msgChan, errChan)
-	go u.UDPWorker(msgChan, errChan)
+	for i := 0; i < cpuCount; i++ {
+		go u.UDPWorker(msgChan, errChan)
+	}
 
 	log.Fatal(<-errChan)
 	return nil
