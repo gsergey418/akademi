@@ -8,20 +8,25 @@ message BaseMessage {
     bytes NodeID = 2;
     uint32 ListenPort = 3;
     oneof Message {
-        PingRequest PingRequest = 4;   
-        PingResponse PingResponse = 5;
-        FindNodeRequest FindNodeRequest = 6;
-        FindNodeResponse FindNodeResponse = 7;
-        FindKeyRequest FindKeyRequest = 8;
-        FindKeyResponse FindKeyResponse = 9;
-        StoreRequest StoreRequest = 10;
-        StoreResponse StoreResponse = 11;
+        ErrorMessage ErrorMessage = 4;
+        PingRequest PingRequest = 5;   
+        PingResponse PingResponse = 6;
+        FindNodeRequest FindNodeRequest = 7;
+        FindNodeResponse FindNodeResponse = 8;
+        FindKeyRequest FindKeyRequest = 9;
+        FindKeyResponse FindKeyResponse = 10;
+        StoreRequest StoreRequest = 11;
+        StoreResponse StoreResponse = 12;
     }
 }
 
 message RoutingEntry {
     string Address = 1;
     bytes NodeID = 2;
+}
+
+message ErrorMessage {
+    string Text = 1;
 }
 
 message PingRequest {}

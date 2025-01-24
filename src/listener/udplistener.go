@@ -89,18 +89,16 @@ func (u *UDPListener) populateDefaultResponse(res, req *pb.BaseMessage) {
 }
 
 // Multiplexer for the BaseMessage type.
-func (u *UDPListener) reqMux(host *net.UDPAddr, req *pb.BaseMessage) error {
+func (u *UDPListener) reqMux(req *pb.BaseMessage) (*pb.BaseMessage, error) {
+	res := &pb.BaseMessage{}
 	switch {
 	case req.GetPingRequest() != nil:
-		res := &pb.BaseMessage{}
 		res.Message = &pb.BaseMessage_PingResponse{}
-		return u.sendUDPMessage(host, res, req)
 	case req.GetFindNodeRequest() != nil:
-		res := &pb.BaseMessage{}
 		msg := &pb.FindNodeResponse{}
 		nodes, err := u.AkademiNode.GetClosestNodes(core.BaseID(req.GetFindNodeRequest().NodeID), core.BucketSize)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		for _, v := range nodes {
 			msg.RoutingEntry = append(msg.RoutingEntry, &pb.RoutingEntry{
@@ -109,9 +107,7 @@ func (u *UDPListener) reqMux(host *net.UDPAddr, req *pb.BaseMessage) error {
 			})
 		}
 		res.Message = &pb.BaseMessage_FindNodeResponse{FindNodeResponse: msg}
-		return u.sendUDPMessage(host, res, req)
 	case req.GetFindKeyRequest() != nil:
-		res := &pb.BaseMessage{}
 		msg := &pb.FindKeyResponse{}
 		data := u.AkademiNode.Get(core.BaseID(req.GetFindKeyRequest().KeyID))
 		if data != nil {
@@ -119,7 +115,7 @@ func (u *UDPListener) reqMux(host *net.UDPAddr, req *pb.BaseMessage) error {
 		} else {
 			nodes, err := u.AkademiNode.GetClosestNodes(core.BaseID(req.GetFindKeyRequest().KeyID), core.BucketSize)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			for _, v := range nodes {
 				msg.RoutingEntry = append(msg.RoutingEntry, &pb.RoutingEntry{
@@ -129,17 +125,14 @@ func (u *UDPListener) reqMux(host *net.UDPAddr, req *pb.BaseMessage) error {
 			}
 		}
 		res.Message = &pb.BaseMessage_FindKeyResponse{FindKeyResponse: msg}
-		return u.sendUDPMessage(host, res, req)
 	case req.GetStoreRequest() != nil:
-		res := &pb.BaseMessage{}
 		err := u.AkademiNode.Set(req.GetStoreRequest().Data)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		res.Message = &pb.BaseMessage_StoreResponse{}
-		return u.sendUDPMessage(host, res, req)
 	}
-	return nil
+	return res, nil
 }
 
 // Handle a slice of bytes as a UDP message.
@@ -164,10 +157,13 @@ func (u *UDPListener) handleUDPMessage(host *net.UDPAddr, buf []byte) error {
 		return err
 	}
 
-	err = u.reqMux(host, req)
+	res, err := u.reqMux(req)
 	if err != nil {
-		return err
+		res = &pb.BaseMessage{}
+		msg := &pb.ErrorMessage{Text: err.Error()}
+		res.Message = &pb.BaseMessage_ErrorMessage{ErrorMessage: msg}
 	}
+	err = u.sendUDPMessage(host, res, req)
 
-	return nil
+	return err
 }

@@ -64,6 +64,9 @@ func (u *UDPDispatcher) dispatchUDPMessage(host core.Host, req *pb.BaseMessage) 
 	if err != nil {
 		return nil, err
 	}
+	if res.GetErrorMessage() != nil {
+		return nil, fmt.Errorf("%s", res.GetErrorMessage().Text)
+	}
 	if bytes.Compare(res.RequestID, req.RequestID) != 0 {
 		return nil, fmt.Errorf("SessionError: Request and response RequestIDs don't match!")
 	}

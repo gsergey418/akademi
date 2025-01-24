@@ -38,7 +38,7 @@ swarm: docker
 	sleep 5
 	for i in $$(seq ${BOOTSTRAP_NODES}); do\
 		for o in $$(seq ${BOOTSTRAP_NODES}); do\
-			[ $$i != $$o ] && ${DOCKER_CMD} exec ${DOCKER_BOOTSTRAP_PREFIX}$$i /bin/akademi bootstrap ${DOCKER_BOOTSTRAP_PREFIX}$$o:3865;\
+			[ $$i != $$o ] && ${DOCKER_CMD} exec ${DOCKER_BOOTSTRAP_PREFIX}$$i /bin/akademi bootstrap ${DOCKER_BOOTSTRAP_PREFIX}$$o:3865 &\
 		done;\
 	done
 
