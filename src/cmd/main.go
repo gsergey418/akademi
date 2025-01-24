@@ -44,11 +44,7 @@ func parseArgs() {
 
 	// Default values for command-line options.
 	opts.bootstrap = true
-	opts.bootstrapList = []core.Host{
-		"akademi_bootstrap_1:3865",
-		"akademi_bootstrap_2:3865",
-		"akademi_bootstrap_3:3865",
-	}
+	opts.bootstrapList = []core.Host{}
 	opts.nodeListenAddr = defaultNodeListenAddr
 	opts.rpcListenAddr = defaultRpcListenAddr
 
@@ -89,7 +85,6 @@ func parseArgs() {
 			os.Exit(1)
 		}
 	}
-	return
 }
 
 // Wrapper for RPC calls.

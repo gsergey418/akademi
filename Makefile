@@ -26,9 +26,9 @@ docker_clean:
 
 swarm: docker
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} || ${DOCKER_CMD} network create ${DOCKER_NETWORK}
-
+	BOOTSTRAP_LIST=${DOCKER_BOOTSTRAP_PREFIX}$$(seq -s:3865,${DOCKER_BOOTSTRAP_PREFIX} ${BOOTSTRAP_NODES}):3865;\
 	for i in $$(seq ${SWARM_PEERS}); do\
-		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi &\
+		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi /bin/akademi daemon --bootstrap-nodes $$BOOTSTRAP_LIST &\
 	done
 	for i in $$(seq ${BOOTSTRAP_NODES}); do\
 		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}$$i akademi /bin/akademi daemon --no-bootstrap &\
