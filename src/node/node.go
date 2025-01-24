@@ -27,7 +27,7 @@ type AkademiNode struct {
 		lock sync.Mutex
 	}
 
-	dispatcher Dispatcher
+	Dispatcher Dispatcher
 }
 
 // The initialize function assigns a random NodeID to the
@@ -38,8 +38,8 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, 
 	a.StartTime = time.Now()
 	log.Print("Initializing Akademi node. NodeID: ", a.NodeID)
 
-	a.dispatcher = dispatcher
-	err := a.dispatcher.Initialize(core.RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
+	a.Dispatcher = dispatcher
+	err := a.Dispatcher.Initialize(core.RoutingHeader{ListenPort: a.ListenPort, NodeID: a.NodeID})
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,6 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, 
 			bootstrapHosts = append(bootstrapHosts[:i], bootstrapHosts[i+1:]...)
 		}
 		log.Print("Bootstrapping process finished.")
-		a.LogRoutingTable()
 	}
 	return nil
 }

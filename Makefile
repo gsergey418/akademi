@@ -25,18 +25,17 @@ docker_clean:
 	${DOCKER_CMD} rmi akademi || exit 0
 
 swarm: docker
-	${DOCKER_CMD} ps | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
-	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} || ${DOCKER_CMD} network create ${DOCKER_NETWORK}
 
 	for i in $$(seq ${SWARM_PEERS}); do\
-		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi;\
+		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_PREFIX}$$i akademi &\
 	done
 	for i in $$(seq ${BOOTSTRAP_NODES}); do\
-		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}$$i akademi /bin/akademi daemon --no-bootstrap;\
+		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}$$i akademi /bin/akademi daemon --no-bootstrap &\
 	done
-	echo "Started containers. Waiting 6 seconds for bootstrap nodes to populate their routing tables."
-	sleep 6
+	sleep 1
+	echo "Started containers. Waiting 5 seconds for bootstrap nodes to populate their routing tables."
+	sleep 5
 	for i in $$(seq ${BOOTSTRAP_NODES}); do\
 		for o in $$(seq ${BOOTSTRAP_NODES}); do\
 			[ $$i != $$o ] && ${DOCKER_CMD} exec ${DOCKER_BOOTSTRAP_PREFIX}$$i /bin/akademi bootstrap ${DOCKER_BOOTSTRAP_PREFIX}$$o:3865;\
@@ -44,8 +43,7 @@ swarm: docker
 	done
 
 swarm_stop:
-	${DOCKER_CMD} ps | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} stop {}
-	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} ${DOCKER_CMD} rm {}
+	${DOCKER_CMD} ps | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} sh -c "${DOCKER_CMD} kill {} && ${DOCKER_CMD} rm {}&"
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} && ${DOCKER_CMD} network rm ${DOCKER_NETWORK} || exit 0
 
 cleanall: swarm_stop docker_clean clean

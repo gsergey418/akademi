@@ -38,6 +38,7 @@ func parseArgs() {
 	noPosArgs := map[string]bool{
 		"daemon":        true,
 		"routing_table": true,
+		"datastore":     true,
 		"info":          true,
 	}
 

@@ -12,6 +12,7 @@ import (
 
 // Update the routing table with a new entry.
 func (a *AkademiNode) UpdateRoutingTable(r core.RoutingEntry) error {
+	log.Print("New routing table entry: ", r.NodeID, ".")
 	prefix := r.NodeID.GetPrefixLength(a.NodeID)
 	a.routingTable.lock.Lock()
 	for i, v := range a.routingTable.data[prefix] {
@@ -21,7 +22,19 @@ func (a *AkademiNode) UpdateRoutingTable(r core.RoutingEntry) error {
 		}
 	}
 	if len(a.routingTable.data[prefix]) >= core.BucketSize {
-		return fmt.Errorf("RoutingError: Bucket already full.")
+		evictionCandidate := a.routingTable.data[prefix][0].Host
+		log.Print("Bucket already full, pinging ", evictionCandidate, ".")
+		a.routingTable.lock.Unlock()
+		_, err := a.Ping(evictionCandidate)
+		a.routingTable.lock.Lock()
+		if err != nil {
+			log.Print("Node at ", evictionCandidate, " dead, evicting it from the routing table.")
+			a.routingTable.data[prefix] = a.routingTable.data[prefix][1:]
+		} else {
+			log.Print("Node at ", evictionCandidate, " alive, dropping ", r.Host, ".")
+			a.routingTable.lock.Unlock()
+			return fmt.Errorf("RoutingError: Bucket already full.")
+		}
 	}
 	a.routingTable.data[prefix] = append(a.routingTable.data[prefix], r)
 	a.routingTable.lock.Unlock()
