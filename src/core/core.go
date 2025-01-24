@@ -7,9 +7,9 @@ import (
 // AkademiNode constants.
 const (
 	IDLength           = 20
-	BucketSize         = 40
+	BucketSize         = 20
 	MaxDataLength      = 4096
-	Replication        = 5
+	Replication        = 9
 	ConcurrentRequests = 3
 	Bootstraps         = 2
 )
