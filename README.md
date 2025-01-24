@@ -4,7 +4,7 @@ Akademi is a [Kademlia](https://en.wikipedia.org/wiki/Kademlia) implementation w
 
 ## Quick Start
 
-To get started with Akademi clone the repo and run make, a binary file will appear in the root of the projects.
+To get started with Akademi clone the repo and run make, a binary file will appear in the root of the project.
 
 1. Clone the project.
 ```
