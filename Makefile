@@ -4,7 +4,7 @@ DOCKER_CMD ::= docker
 DOCKER_NETWORK ::= akademi
 DOCKER_PREFIX ::= akademi_
 DOCKER_BOOTSTRAP_PREFIX ::= akademi_bootstrap_
-BOOTSTRAP_NODES ::= 5
+BOOTSTRAP_NODES ::= 3
 SWARM_PEERS ::= 100
 
 .PHONY: docker, docker_clean, swarm, swarm_stop, clean, cleanall, test
@@ -34,11 +34,11 @@ swarm: docker
 		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}$$i akademi /bin/akademi daemon --no-bootstrap &\
 	done
 	sleep 2
-	echo "Started containers. Waiting 10 seconds for bootstrap nodes to populate their routing tables."
-	sleep 10
+	echo "Started containers. Waiting 5 seconds for bootstrap nodes to populate their routing tables."
+	sleep 5
 	for i in $$(seq ${BOOTSTRAP_NODES}); do\
 		for o in $$(seq ${BOOTSTRAP_NODES}); do\
-			[ $$i != $$o ] && ${DOCKER_CMD} exec ${DOCKER_BOOTSTRAP_PREFIX}$$i /bin/akademi bootstrap ${DOCKER_BOOTSTRAP_PREFIX}$$o:3865;\
+			[ $$i != $$o ] && ${DOCKER_CMD} exec ${DOCKER_BOOTSTRAP_PREFIX}$$i /bin/akademi bootstrap ${DOCKER_BOOTSTRAP_PREFIX}$$o:3865 &\
 		done;\
 	done
 

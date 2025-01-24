@@ -7,11 +7,11 @@ import (
 // AkademiNode constants.
 const (
 	IDLength           = 20
-	BucketSize         = 20
+	BucketSize         = 40
 	MaxDataLength      = 4096
-	Replication        = 7
+	Replication        = 5
 	ConcurrentRequests = 3
-	Bootstraps         = 5
+	Bootstraps         = 2
 )
 
 // Akademi uses node and key IDs, whose length is defined
