@@ -5,7 +5,7 @@ DOCKER_NETWORK ::= akademi
 DOCKER_PREFIX ::= akademi_
 DOCKER_BOOTSTRAP_PREFIX ::= akademi_bootstrap_
 BOOTSTRAP_NODES ::= 5
-SWARM_PEERS ::= 200
+SWARM_PEERS ::= 100
 
 .PHONY: docker, docker_clean, swarm, swarm_stop, clean, cleanall, test
 
