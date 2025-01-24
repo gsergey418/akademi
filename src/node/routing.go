@@ -25,9 +25,12 @@ func (a *AkademiNode) UpdateRoutingTable(r core.RoutingEntry) error {
 	if len(a.routingTable.data[prefix]) >= core.BucketSize {
 		evictionCandidate := a.routingTable.data[prefix][0].Host
 		log.Print("Bucket already full, pinging ", evictionCandidate, ".")
-		a.routingTable.lock.Unlock()
-		defer a.routingTable.lock.Lock()
-		_, err := a.Ping(evictionCandidate)
+		var err error
+		func() {
+			a.routingTable.lock.Unlock()
+			defer a.routingTable.lock.Lock()
+			_, err = a.Ping(evictionCandidate)
+		}()
 		if err != nil {
 			log.Print("Node at ", evictionCandidate, " dead, evicting it from the routing table.")
 			a.routingTable.data[prefix] = a.routingTable.data[prefix][1:]
