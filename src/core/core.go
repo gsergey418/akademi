@@ -1,6 +1,8 @@
 package core
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // AkademiNode constants.
 const (
@@ -44,4 +46,9 @@ type RoutingHeader struct {
 // Pretty-print core.RoutingEntry.
 func (r RoutingEntry) String() string {
 	return fmt.Sprintf("%s@%s", r.NodeID, r.Host)
+}
+
+// Pretty-print core.DataBytes.
+func (d DataBytes) String() string {
+	return string(d)
 }

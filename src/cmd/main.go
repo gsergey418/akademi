@@ -60,6 +60,10 @@ func parseArgs() {
 	optStart, optStop := 2, argLen
 	opts.cmd = os.Args[1]
 	if _, ok := noPosArgs[opts.cmd]; !ok {
+		if argLen < 3 {
+			fmt.Print("Not enough arguments, please provide a positional argument.\n")
+			os.Exit(1)
+		}
 		opts.target = os.Args[argLen-1]
 		optStop--
 	}
@@ -102,9 +106,8 @@ func RPCSessionManager(f func(client *rpc.Client) error) {
 	}
 }
 
-// Akademi entrypoint.
-func main() {
-	parseArgs()
+// Multiplexer for CLI commands.
+func runCommand() {
 	switch opts.cmd {
 	case "daemon":
 		log.Fatal(daemon.Daemon(opts.nodeListenAddr, opts.bootstrap, opts.bootstrapList, opts.rpcListenAddr))
@@ -162,8 +165,26 @@ func main() {
 			return client.Call("AkademiNodeRPCServer.Store", args, &reply)
 		})
 		fmt.Print("Data stored on the DHT successfully. KeyID: ", reply.KeyID, ".\n")
+	case "get":
+		keyID, err := core.B32ToID(opts.target)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		args := akademiRPC.GetArgs{KeyID: keyID}
+		reply := akademiRPC.GetReply{}
+		RPCSessionManager(func(client *rpc.Client) error {
+			return client.Call("AkademiNodeRPCServer.Get", args, &reply)
+		})
+		fmt.Print("Data retreived from the DHT successfully.\nContent: ", reply.Data, ".\n")
 	default:
 		fmt.Print("Command \"", opts.cmd, "\" not found.\n")
 		os.Exit(1)
 	}
+}
+
+// Akademi entrypoint.
+func main() {
+	parseArgs()
+	runCommand()
 }

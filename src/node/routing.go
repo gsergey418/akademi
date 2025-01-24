@@ -175,19 +175,24 @@ func (a *AkademiNode) KeyLookup(keyID core.BaseID) (core.DataBytes, error) {
 	queriedHosts := map[core.Host]bool{}
 	prevClosestNode := core.RoutingEntry{}
 
-	var c chan core.DataBytes
+	c := make(chan core.DataBytes, core.ConcurrentRequests)
 
 	for nodes[0] != prevClosestNode {
 		reqCounter := 0
 		for i := 0; i < len(nodes) && reqCounter < core.ConcurrentRequests; i++ {
 			if _, ok := queriedHosts[nodes[i].Host]; ok == false {
-				go func() {
-					_, data, _, err := a.FindKey(nodes[i].Host, keyID)
+				if nodes[i].NodeID == a.NodeID {
+					data := a.Get(keyID)
 					c <- data
-					if err != nil {
-						log.Print(err)
-					}
-				}()
+				} else {
+					go func() {
+						_, data, _, err := a.FindKey(nodes[i].Host, keyID)
+						c <- data
+						if err != nil {
+							log.Print(err)
+						}
+					}()
+				}
 				queriedHosts[nodes[i].Host] = true
 				reqCounter++
 			}

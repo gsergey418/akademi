@@ -35,3 +35,8 @@ type BootstrapReply struct{}
 type StoreReply struct {
 	KeyID core.BaseID
 }
+
+// Reply for the Get RPC.
+type GetReply struct {
+	Data core.DataBytes
+}

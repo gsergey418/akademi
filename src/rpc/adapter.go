@@ -88,3 +88,10 @@ func (s *AkademiNodeRPCServer) Store(args *StoreArgs, reply *StoreReply) error {
 	reply.KeyID = keyID
 	return err
 }
+
+// Gets the node datastore as a string.
+func (s *AkademiNodeRPCServer) Get(args *GetArgs, reply *GetReply) error {
+	data, err := s.AkademiNode.KeyLookup(args.KeyID)
+	reply.Data = data
+	return err
+}

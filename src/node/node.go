@@ -18,7 +18,7 @@ type AkademiNode struct {
 	ListenPort core.IPPort
 	StartTime  time.Time
 	dataStore  struct {
-		data map[core.BaseID][]byte
+		data map[core.BaseID]core.DataBytes
 		lock sync.Mutex
 	}
 
@@ -44,7 +44,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, 
 		return err
 	}
 
-	a.dataStore.data = make(map[core.BaseID][]byte)
+	a.dataStore.data = make(map[core.BaseID]core.DataBytes)
 
 	if bootstrap {
 		log.Print("Initiating node bootstrap. Hosts: ", bootstrapList, ".")
