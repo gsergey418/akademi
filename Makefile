@@ -34,8 +34,8 @@ swarm: docker
 		${DOCKER_CMD} run -d --network=${DOCKER_NETWORK} --name ${DOCKER_BOOTSTRAP_PREFIX}$$i akademi /bin/akademi daemon --no-bootstrap &\
 	done
 	sleep 2
-	echo "Started containers. Waiting 5 seconds for bootstrap nodes to populate their routing tables."
-	sleep 5
+	echo "Started containers. Waiting 10 seconds for bootstrap nodes to populate their routing tables."
+	sleep 10
 	for i in $$(seq ${BOOTSTRAP_NODES}); do\
 		for o in $$(seq ${BOOTSTRAP_NODES}); do\
 			[ $$i != $$o ] && ${DOCKER_CMD} exec ${DOCKER_BOOTSTRAP_PREFIX}$$i /bin/akademi bootstrap ${DOCKER_BOOTSTRAP_PREFIX}$$o:3865;\
