@@ -67,30 +67,31 @@ $ docker run -p 3865:3865 -p 3855:3855 akademi:latest
 
 ## Technical Details
 
+When started, Akademi opens ports 3855 on the localhost and 3865 on all interfaces. The first one is used for communication with the CLI via RPC, and the second one for communicating with other nodes. Akademi has three main modules responsible for the core functionality: AkademiNode, Listener and Dispatcher. They communicate with each other via interfaces in the following way: AkademiNode holds the core Kademlia logic regarding routing and data storage, it is used by the Listener to react to incoming requests from other nodes, which is a one-way relationship from the Listener to AkademiNode. Meanwhile, AkademiNode holds an instance of the Dispatcher interface, that is used for dispatching UDP messages to other nodes, which is also a one-way relationship. These packages all depend on core types held in the "core" package and protocol buffer definitions in the package "pb". In regards to the core Kademlia logic, this software mostly adheres to the original whitepaper. Information on the network is stored as bytes with a maximum length of 4KiB. They are addressed via base32-encoded SHA1 hashes of their content, which is computed on write. Values in storage expire after one hour. This wasn't built with account for any persistence, so all the data and routing information is stored in memory.
+
 ```mermaid
 graph TD;
     subgraph Daemon;
-    UDPListener--Reacts to requests from other nodes-->AkademiNode;
-    AkademiNodeRPCServer--Processes user's RPC calls-->AkademiNode;
+    UDPListener--Changes/Requests state-->AkademiNode;
+    AkademiNodeRPCServer--Changes/Requests state-->AkademiNode;
     subgraph AkademiNode
     routingTable
     dataStore
     end
-    AkademiNode--Dispatches requests-->UDPDispatcher;
-    UDPDispatcher--Returns response-->AkademiNode;
+    AkademiNode--Dispatches requests to other nodes-->UDPDispatcher;
     end
-    UDPDispatcher-->OutgoingSocket["Outgoing UDP socket"]
+    UDPDispatcher--Serialization-->OutgoingSocket["Outgoing UDP socket"]
     IncomingSocket["0.0.0.0:3856
-    Incoming UDP socket"]-->UDPListener
+    Incoming UDP socket"]--Deserialization-->UDPListener
     main["main()"]--./akademi daemon-->Daemon
-    main--RPC Calls (store, get, etc.)-->RPCSocket["RPC socket
-    127.0.0.1:3855"]
-    RPCSocket -->AkademiNodeRPCServer
+    main--RPC Calls (store, get, etc.)-->RPCSocket["127.0.0.1:3855
+    RPC socket"]
+    RPCSocket--Processes user's RPC calls-->AkademiNodeRPCServer
 ```
 
 ## Running Tests
 
-To run tests on the projects launch the daemon in standalone mode and run make tests.
+To run tests on the project, launch the daemon in standalone mode and run make test.
 
 1. Run the daemon
 ```
