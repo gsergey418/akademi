@@ -9,9 +9,9 @@ const (
 	IDLength           = 20
 	BucketSize         = 20
 	MaxDataLength      = 4096
-	Replication        = 5
+	Replication        = 7
 	ConcurrentRequests = 3
-	Bootstraps         = 3
+	Bootstraps         = 5
 )
 
 // Akademi uses node and key IDs, whose length is defined
