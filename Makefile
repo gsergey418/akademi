@@ -43,7 +43,7 @@ swarm: docker
 	done
 
 swarm_stop:
-	${DOCKER_CMD} ps | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} sh -c "${DOCKER_CMD} kill {} && ${DOCKER_CMD} rm {}&"
+	${DOCKER_CMD} ps -a | awk '{ print $$1,$$3 }' | grep akademi | awk '{print $$1 }' | xargs -I {} sh -c "${DOCKER_CMD} kill {} 2> /dev/null; ${DOCKER_CMD} rm {}&"
 	${DOCKER_CMD} network ls | grep ${DOCKER_NETWORK} && ${DOCKER_CMD} network rm ${DOCKER_NETWORK} || exit 0
 
 cleanall: swarm_stop docker_clean clean
