@@ -1,25 +1,25 @@
 # Akademi
 
-Akademi is a [Kademlia](https://en.wikipedia.org/wiki/Kademlia) implementation written in Go. The nodes of Akademi communicate with each other via UDP messages in [Protocol Buffers](https://protobuf.dev/). The project employs a modular architechture with loosely-coupled modules, each with their respective responsibilities. 
+Akademi is a [Kademlia](https://en.wikipedia.org/wiki/Kademlia) implementation written in Go. The nodes of Akademi communicate with each other via UDP messages in [Protocol Buffers](https://protobuf.dev/).
 
 ## Quick Start
 
-To get started with Akademi clone the repo and run make, a binary file will appear in the root of the projects
+To get started with Akademi clone the repo and run make, a binary file will appear in the root of the projects.
 
-1. Clone the project 
+1. Clone the project.
 ```
-$ git clone https://github.com/gseryey418alt/akademi
+$ git clone https://github.com/gsergey418alt/akademi
 ```
-2. Install development dependecies
+2. Install development dependencies.
 ```
 $ sudo apt install go protoc
 $ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 ```
-3. Build it
+3. Build it.
 ```
 $ make
 ```
-4. Start the daemon. 
+4. Start the daemon.
 ```
 $ ./akademi daemon
 ```
@@ -63,6 +63,29 @@ You can also run a regular akademi node from a docker image.
 ```
 $ make docker
 $ docker run -p 3865:3865 -p 3855:3855 akademi:latest
+```
+
+## Technical Details
+
+```mermaid
+graph TD;
+    subgraph Daemon;
+    UDPListener--Reacts to requests from other nodes-->AkademiNode;
+    AkademiNodeRPCServer--Processes user's RPC calls-->AkademiNode;
+    subgraph AkademiNode
+    routingTable
+    dataStore
+    end
+    AkademiNode--Dispatches requests-->UDPDispatcher;
+    UDPDispatcher--Returns response-->AkademiNode;
+    end
+    UDPDispatcher-->OutgoingSocket["Outgoing UDP socket"]
+    IncomingSocket["0.0.0.0:3856
+    Incoming UDP socket"]-->UDPListener
+    main["main()"]--./akademi daemon-->Daemon
+    main--RPC Calls (store, get, etc.)-->RPCSocket["RPC socket
+    127.0.0.1:3855"]
+    RPCSocket -->AkademiNodeRPCServer
 ```
 
 ## Running Tests
