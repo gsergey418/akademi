@@ -62,7 +62,7 @@ You can also run a regular akademi node from a docker image.
 
 ```
 $ make docker
-$ docker run -p 3865:3865 -p 3855:3855 akademi:latest
+$ docker run --name akademi --rm -d -p 3865:3865 -p 127.0.0.1:3855:3855 ghcr.io/gsergey418alt/akademi:latest
 ```
 
 ## Technical Details
