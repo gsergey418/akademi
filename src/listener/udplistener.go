@@ -33,6 +33,34 @@ func (u *UDPListener) Initialize(listenAddrStr string, a *node.AkademiNode) erro
 	return nil
 }
 
+// Sturcture that contains the source host and message bytes.
+type UDPBytes struct {
+	host *net.UDPAddr
+	data []byte
+}
+
+// Main listener goroutine.
+func (u *UDPListener) ListenUDP(msgChan chan UDPBytes, errChan chan error) {
+	for {
+		l, host, err := u.udpConn.ReadFromUDP(u.udpReadBuffer[:])
+		if err != nil {
+			log.Print(err)
+		}
+		msgChan <- UDPBytes{host, u.udpReadBuffer[:l]}
+	}
+}
+
+// Handler goroutine.
+func (u *UDPListener) UDPWorker(msgChan chan UDPBytes, errChan chan error) {
+	for {
+		udpBytes := <-msgChan
+		err := u.handleUDPMessage(udpBytes.host, udpBytes.data)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+}
+
 // Opens a UDP socket on UDPListener.ListenAddr.
 func (u *UDPListener) Listen() error {
 	conn, err := net.ListenUDP("udp", u.ListenAddr)
@@ -43,16 +71,14 @@ func (u *UDPListener) Listen() error {
 	defer conn.Close()
 	log.Print("UDP listener started on address ", u.ListenAddr, ".")
 
-	for {
-		l, host, err := u.udpConn.ReadFromUDP(u.udpReadBuffer[:])
-		if err != nil {
-			log.Print(err)
-		}
-		err = u.handleUDPMessage(host, u.udpReadBuffer[:l])
-		if err != nil {
-			log.Print(err)
-		}
-	}
+	errChan := make(chan error)
+	msgChan := make(chan UDPBytes, 1024)
+
+	go u.ListenUDP(msgChan, errChan)
+	go u.UDPWorker(msgChan, errChan)
+
+	log.Fatal(<-errChan)
+	return nil
 }
 
 // Populates the default response protobuf.
