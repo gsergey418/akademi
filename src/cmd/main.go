@@ -176,7 +176,7 @@ func runCommand() {
 		RPCSessionManager(func(client *rpc.Client) error {
 			return client.Call("AkademiNodeRPCServer.Get", args, &reply)
 		})
-		fmt.Print("Data retreived from the DHT successfully.\nContent: ", reply.Data, ".\n")
+		fmt.Print("Data retreived from the DHT successfully.\nContent:\n", reply.Data, "\n")
 	default:
 		fmt.Print("Command \"", opts.cmd, "\" not found.\n")
 		os.Exit(1)

@@ -14,11 +14,15 @@ func getKeyID(data core.DataBytes) core.BaseID {
 }
 
 // Write entry to the data storage
-func (a *AkademiNode) Set(data core.DataBytes) {
+func (a *AkademiNode) Set(data core.DataBytes) error {
+	if len(data) > core.MaxDataLength {
+		return fmt.Errorf("Data size too big. Max data length: %d bytes.", core.MaxDataLength)
+	}
 	keyID := getKeyID(data)
 	a.dataStore.lock.Lock()
 	defer a.dataStore.lock.Unlock()
 	a.dataStore.data[keyID] = data
+	return nil
 }
 
 // Read entry from data storage
@@ -48,8 +52,8 @@ func (a *AkademiNode) DHTStore(data core.DataBytes) (core.BaseID, error) {
 
 	for _, node := range nodes {
 		if node.NodeID == a.NodeID {
-			a.Set(data)
-			c <- nil
+			err := a.Set(data)
+			c <- err
 			continue
 		}
 		go func() {

@@ -106,7 +106,10 @@ func (u *UDPListener) reqMux(host *net.UDPAddr, req *pb.BaseMessage) error {
 		return u.sendUDPMessage(host, res, req)
 	case req.GetStoreRequest() != nil:
 		res := &pb.BaseMessage{}
-		u.AkademiNode.Set(req.GetStoreRequest().Data)
+		err := u.AkademiNode.Set(req.GetStoreRequest().Data)
+		if err != nil {
+			return err
+		}
 		res.Message = &pb.BaseMessage_StoreResponse{}
 		return u.sendUDPMessage(host, res, req)
 	}
