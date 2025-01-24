@@ -75,9 +75,16 @@ func (a *AkademiNode) Uptime() time.Duration {
 }
 
 // Get node information string.
-func (a *AkademiNode) NodeInfo() (nodeInfo string) {
-	nodeInfo += fmt.Sprintf("NodeID: %s\n", a.NodeID)
+func (a *AkademiNode) NodeInfo() string {
+	nodeInfo := fmt.Sprintf("NodeID: %s\n", a.NodeID)
 	uptime := a.Uptime()
-	nodeInfo += fmt.Sprintf("Uptime: %02d:%02d:%02d", int(uptime.Hours()), int(uptime.Minutes()), int(uptime.Seconds()))
-	return
+	nodeInfo += fmt.Sprintf("Uptime: %02d:%02d:%02d\n", int(uptime.Hours()), int(uptime.Minutes()), int(uptime.Seconds()))
+	func() {
+		a.routingTable.lock.Lock()
+		defer a.routingTable.lock.Unlock()
+		if len(a.routingTable.data[core.IDLength*8]) > 0 {
+			nodeInfo += fmt.Sprintf("Host: %s\n", a.routingTable.data[core.IDLength*8][0].Host)
+		}
+	}()
+	return nodeInfo[:len(nodeInfo)-1]
 }

@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"testing"
 
 	"github.com/gsergey418alt/akademi/pb"
 	"google.golang.org/protobuf/proto"
 )
 
-func TestError(t *testing.T) {
+func main() {
 	addr, err := net.ResolveUDPAddr("udp", "127.0.0.1:3865")
 	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
