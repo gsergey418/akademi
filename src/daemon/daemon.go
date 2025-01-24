@@ -81,8 +81,7 @@ func Daemon(listenAddr string, bootstrap bool, bootstrapList []core.Host, rpcLis
 		return err
 	}
 
-	select {
-	case err := <-c:
-		return err
-	}
+	go AsyncWrapper(c, node.Main)
+
+	return <-c
 }

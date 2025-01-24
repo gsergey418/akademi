@@ -3,6 +3,8 @@ package node
 import (
 	"crypto/sha1"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/gsergey418alt/akademi/core"
 )
@@ -16,12 +18,12 @@ func getKeyID(data core.DataBytes) core.BaseID {
 // Write entry to the data storage
 func (a *AkademiNode) Set(data core.DataBytes) error {
 	if len(data) > core.MaxDataLength {
-		return fmt.Errorf("Data size too big. Max data length: %d bytes.", core.MaxDataLength)
+		return fmt.Errorf("data size too big. max data length: %d bytes", core.MaxDataLength)
 	}
 	keyID := getKeyID(data)
 	a.dataStore.lock.Lock()
 	defer a.dataStore.lock.Unlock()
-	a.dataStore.data[keyID] = data
+	a.dataStore.data[keyID] = &core.DataContainer{Data: data, LastAccess: time.Now()}
 	return nil
 }
 
@@ -31,7 +33,8 @@ func (a *AkademiNode) Get(keyID core.BaseID) core.DataBytes {
 	defer a.dataStore.lock.Unlock()
 	data, ok := a.dataStore.data[keyID]
 	if ok {
-		return data
+		a.dataStore.data[keyID].LastAccess = time.Now()
+		return data.Data
 	} else {
 		return nil
 	}
@@ -46,7 +49,7 @@ func (a *AkademiNode) DHTStore(data core.DataBytes) (core.BaseID, error) {
 		return core.BaseID{}, err
 	}
 	if len(nodes) == 0 {
-		return core.BaseID{}, fmt.Errorf("No suitable nodes found.")
+		return core.BaseID{}, fmt.Errorf("no suitable nodes found")
 	}
 	c := make(chan error, core.Replication)
 
@@ -79,5 +82,21 @@ func (a *AkademiNode) DataStoreString() (table string) {
 		return table[:len(table)-1]
 	} else {
 		return ""
+	}
+}
+
+// Expires old records.
+func (a *AkademiNode) ExpireOldData() {
+	a.dataStore.lock.Lock()
+	defer a.dataStore.lock.Unlock()
+	expired := 0
+	for k, v := range a.dataStore.data {
+		if time.Since(v.LastAccess) > core.DataExpire {
+			delete(a.dataStore.data, k)
+			expired++
+		}
+	}
+	if expired > 0 {
+		log.Print("Expired ", expired, " records.")
 	}
 }

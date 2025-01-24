@@ -36,7 +36,7 @@ func (a *AkademiNode) UpdateRoutingTable(r core.RoutingEntry) error {
 			a.routingTable.data[prefix] = a.routingTable.data[prefix][1:]
 		} else {
 			log.Print("Node at ", evictionCandidate, " alive, dropping ", r.Host, ".")
-			return fmt.Errorf("RoutingError: Bucket already full.")
+			return fmt.Errorf("bucket already full")
 		}
 	}
 	a.routingTable.data[prefix] = append(a.routingTable.data[prefix], r)
@@ -109,7 +109,7 @@ func (a *AkademiNode) GetClosestNodes(nodeID core.BaseID, amount int) ([]core.Ro
 	a.routingTable.lock.Unlock()
 
 	if len(nodes) == 0 {
-		return nodes, fmt.Errorf("Node doesn't exist.")
+		return nodes, fmt.Errorf("node doesn't exist")
 	}
 	sort.Sort(sortBucketByDistance{NodeID: nodeID, Bucket: &nodes})
 	return nodes, nil
@@ -132,7 +132,7 @@ func (a *AkademiNode) Lookup(nodeID core.BaseID, amount int) ([]core.RoutingEntr
 	for nodes[0] != prevClosestNode {
 		reqCounter := 0
 		for i := 0; i < len(nodes) && reqCounter < core.ConcurrentRequests; i++ {
-			if _, ok := queriedHosts[nodes[i].Host]; ok == false {
+			if _, ok := queriedHosts[nodes[i].Host]; !ok {
 				wg.Add(1)
 				go func() {
 					defer wg.Done()
@@ -158,7 +158,7 @@ func (a *AkademiNode) Lookup(nodeID core.BaseID, amount int) ([]core.RoutingEntr
 
 	reqCounter := 0
 	for i := 0; i < len(nodes) && reqCounter < core.BucketSize; i++ {
-		if _, ok := queriedHosts[nodes[i].Host]; ok == false {
+		if _, ok := queriedHosts[nodes[i].Host]; !ok {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
@@ -195,7 +195,7 @@ func (a *AkademiNode) KeyLookup(keyID core.BaseID) (core.DataBytes, error) {
 	for nodes[0] != prevClosestNode {
 		reqCounter := 0
 		for i := 0; i < len(nodes) && reqCounter < core.ConcurrentRequests; i++ {
-			if _, ok := queriedHosts[nodes[i].Host]; ok == false {
+			if _, ok := queriedHosts[nodes[i].Host]; !ok {
 				if nodes[i].NodeID == a.NodeID {
 					data := a.Get(keyID)
 					c <- data
@@ -227,7 +227,7 @@ func (a *AkademiNode) KeyLookup(keyID core.BaseID) (core.DataBytes, error) {
 
 	reqCounter := 0
 	for i := 0; i < len(nodes) && reqCounter < core.BucketSize; i++ {
-		if _, ok := queriedHosts[nodes[i].Host]; ok == false {
+		if _, ok := queriedHosts[nodes[i].Host]; !ok {
 			go func() {
 				_, data, _, err := a.FindKey(nodes[i].Host, keyID)
 				c <- data
@@ -250,7 +250,7 @@ func (a *AkademiNode) KeyLookup(keyID core.BaseID) (core.DataBytes, error) {
 		return nil, err
 	}
 
-	return nil, fmt.Errorf("Requested key not found.")
+	return nil, fmt.Errorf("requested key not found")
 }
 
 // Get all the entries in the routing table as a string.

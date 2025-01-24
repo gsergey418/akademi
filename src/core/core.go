@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"time"
 )
 
 // AkademiNode constants.
@@ -12,6 +13,7 @@ const (
 	Replication        = 10
 	ConcurrentRequests = 3
 	Bootstraps         = 2
+	DataExpire         = time.Hour
 )
 
 // Akademi uses node and key IDs, whose length is defined
@@ -29,6 +31,13 @@ type Host string
 // DataBytes is a type for values to be stored in akademi
 // nodes.
 type DataBytes []byte
+
+// DataContainer is a structure that represents an entry in
+// the node's data storage.
+type DataContainer struct {
+	Data       DataBytes
+	LastAccess time.Time
+}
 
 // RoutingEntry is a structure that stores routing
 // information about an akademi node.
@@ -52,4 +61,9 @@ func (r RoutingEntry) String() string {
 // Pretty-print core.DataBytes.
 func (d DataBytes) String() string {
 	return string(d)
+}
+
+// Pretty-print core.DataBytes.
+func (d DataContainer) String() string {
+	return d.Data.String()
 }

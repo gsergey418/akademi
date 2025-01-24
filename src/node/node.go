@@ -18,7 +18,7 @@ type AkademiNode struct {
 	ListenPort core.IPPort
 	StartTime  time.Time
 	dataStore  struct {
-		data map[core.BaseID]core.DataBytes
+		data map[core.BaseID]*core.DataContainer
 		lock sync.Mutex
 	}
 
@@ -44,7 +44,7 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, 
 		return err
 	}
 
-	a.dataStore.data = make(map[core.BaseID]core.DataBytes)
+	a.dataStore.data = make(map[core.BaseID]*core.DataContainer)
 
 	if bootstrap {
 		log.Print("Initiating node bootstrap. Hosts: ", bootstrapList, ".")
@@ -67,6 +67,14 @@ func (a *AkademiNode) Initialize(dispatcher Dispatcher, listenPort core.IPPort, 
 		log.Print("Bootstrapping process finished.")
 	}
 	return nil
+}
+
+// Main routine of AkademiNode, runs maintenance tasks.
+func (a *AkademiNode) Main() error {
+	for {
+		time.Sleep(1 * time.Minute)
+		a.ExpireOldData()
+	}
 }
 
 // Returns time.Duration of the node's uptime.
