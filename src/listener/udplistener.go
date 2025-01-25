@@ -72,6 +72,7 @@ func (u *UDPListener) Listen() error {
 	errChan := make(chan error)
 	msgChan := make(chan UDPBytes, 1024)
 
+	go UPnPWorker(errChan, uint16(u.ListenAddr.Port))
 	go u.ListenUDP(msgChan, errChan)
 	for i := 0; i < cpuCount; i++ {
 		go u.UDPWorker(msgChan, errChan)

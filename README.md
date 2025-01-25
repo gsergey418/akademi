@@ -4,7 +4,7 @@ Akademi is a [Kademlia](https://en.wikipedia.org/wiki/Kademlia) implementation w
 
 ## Quick Start
 
-To get started with Akademi clone the repo and run make, a binary file will appear in the root of the project.
+To get started with Akademi you can download the binary for your platform from the [releases](https://github.com/gsergey418alt/akademi/releases) page. To build from source, clone the repo and run make, a binary file will appear in the root of the project.
 
 1. Clone the project.
 ```
@@ -19,9 +19,9 @@ $ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 ```
 $ make
 ```
-4. Start the daemon.
+4. Start the daemon and provide addresses of bootstrap nodes.
 ```
-$ ./akademi daemon
+$ ./akademi daemon --bootstrap-nodes 133.146.89.223:3865
 ```
 
 ## Usage
@@ -101,3 +101,7 @@ $ ./akademi daemon --no-bootstrap
 ```
 $ make test
 ```
+
+## Contributing to Akademi
+
+Thank you for considering contributing to Akademi! In order to submit your patch, please fork the repository and create a pull request on the main branch.
