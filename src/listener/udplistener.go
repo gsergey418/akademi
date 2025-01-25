@@ -1,16 +1,11 @@
 package listener
 
 import (
-	"bytes"
-	"fmt"
 	"log"
 	"net"
 	"runtime"
 
-	"github.com/gsergey418alt/akademi/core"
 	"github.com/gsergey418alt/akademi/node"
-	"github.com/gsergey418alt/akademi/pb"
-	"google.golang.org/protobuf/proto"
 )
 
 // The UDPListener struct receives protocol buffers
@@ -84,91 +79,4 @@ func (u *UDPListener) Listen() error {
 
 	log.Fatal(<-errChan)
 	return nil
-}
-
-// Populates the default response protobuf.
-func (u *UDPListener) populateDefaultResponse(res, req *pb.BaseMessage) {
-	res.RequestID = req.RequestID
-	res.ListenPort = uint32(u.ListenAddr.Port)
-	res.NodeID = u.AkademiNode.NodeID[:]
-}
-
-// Multiplexer for the BaseMessage type.
-func (u *UDPListener) reqMux(req *pb.BaseMessage) (*pb.BaseMessage, error) {
-	res := &pb.BaseMessage{}
-	switch {
-	case req.GetPingRequest() != nil:
-		res.Message = &pb.BaseMessage_PingResponse{}
-	case req.GetFindNodeRequest() != nil:
-		msg := &pb.FindNodeResponse{}
-		nodes, err := u.AkademiNode.GetClosestNodes(core.BaseID(req.GetFindNodeRequest().NodeID), core.BucketSize)
-		if err != nil {
-			return nil, err
-		}
-		for _, v := range nodes {
-			msg.RoutingEntry = append(msg.RoutingEntry, &pb.RoutingEntry{
-				Address: string(v.Host),
-				NodeID:  v.NodeID[:],
-			})
-		}
-		res.Message = &pb.BaseMessage_FindNodeResponse{FindNodeResponse: msg}
-	case req.GetFindKeyRequest() != nil:
-		msg := &pb.FindKeyResponse{}
-		data := u.AkademiNode.Get(core.BaseID(req.GetFindKeyRequest().KeyID))
-		if data != nil {
-			msg.Data = data
-		} else {
-			nodes, err := u.AkademiNode.GetClosestNodes(core.BaseID(req.GetFindKeyRequest().KeyID), core.BucketSize)
-			if err != nil {
-				return nil, err
-			}
-			for _, v := range nodes {
-				msg.RoutingEntry = append(msg.RoutingEntry, &pb.RoutingEntry{
-					Address: string(v.Host),
-					NodeID:  v.NodeID[:],
-				})
-			}
-		}
-		res.Message = &pb.BaseMessage_FindKeyResponse{FindKeyResponse: msg}
-	case req.GetStoreRequest() != nil:
-		err := u.AkademiNode.Set(req.GetStoreRequest().Data)
-		if err != nil {
-			return nil, err
-		}
-		res.Message = &pb.BaseMessage_StoreResponse{}
-	}
-	return res, nil
-}
-
-// Handle a slice of bytes as a UDP message.
-func (u *UDPListener) handleUDPMessage(host *net.UDPAddr, buf []byte) error {
-	log.Print("Message from ", host, ": ", len(buf), " bytes.")
-	req := &pb.BaseMessage{}
-	err := proto.Unmarshal(buf, req)
-	if err != nil {
-		return err
-	}
-
-	if bytes.Equal(req.NodeID, u.AkademiNode.NodeID[:]) {
-		return fmt.Errorf("Request from self, dropping.")
-	}
-
-	r := core.RoutingEntry{
-		Host:   core.Host(fmt.Sprintf("%s:%d", host.IP, req.ListenPort)),
-		NodeID: core.BaseID(req.NodeID),
-	}
-	err = u.AkademiNode.UpdateRoutingTable(r)
-	if err != nil {
-		return err
-	}
-
-	res, err := u.reqMux(req)
-	if err != nil {
-		res = &pb.BaseMessage{}
-		msg := &pb.ErrorMessage{Text: err.Error()}
-		res.Message = &pb.BaseMessage_ErrorMessage{ErrorMessage: msg}
-	}
-	err = u.sendUDPMessage(host, res, req)
-
-	return err
 }
