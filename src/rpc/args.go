@@ -29,7 +29,7 @@ type BootstrapArgs struct {
 }
 
 // Arguments for the Store RPC.
-type StoreArgs struct {
+type PublishArgs struct {
 	Data core.DataBytes
 }
 

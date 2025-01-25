@@ -154,13 +154,13 @@ func runCommand() {
 			return client.Call("AkademiNodeRPCServer.Bootstrap", args, &reply)
 		})
 		fmt.Print("Successfully bootstrapped node with ", opts.target, ".\n")
-	case "store":
-		args := akademiRPC.StoreArgs{Data: core.DataBytes(opts.target)}
-		reply := akademiRPC.StoreReply{}
+	case "publish":
+		args := akademiRPC.PublishArgs{Data: core.DataBytes(opts.target)}
+		reply := akademiRPC.PublishReply{}
 		RPCSessionManager(func(client *rpc.Client) error {
-			return client.Call("AkademiNodeRPCServer.Store", args, &reply)
+			return client.Call("AkademiNodeRPCServer.Publish", args, &reply)
 		})
-		fmt.Print("Data stored on the DHT successfully. KeyID: ", reply.KeyID, ".\n")
+		fmt.Print("Data published to the DHT successfully. KeyID: ", reply.KeyID, ".\n")
 	case "get":
 		keyID, err := core.B32ToID(opts.target)
 		if err != nil {

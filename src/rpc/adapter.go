@@ -51,7 +51,7 @@ func (s *AkademiNodeRPCServer) Lookup(args *LookupArgs, reply *LookupReply) erro
 		return err
 	}
 	if len(nodes) < 1 || nodes[0] == empty {
-		return fmt.Errorf("Could not lookup ID %s.", args.ID)
+		return fmt.Errorf("could not lookup ID %s", args.ID)
 	}
 	reply.RoutingEntry = nodes[0]
 	return nil
@@ -82,9 +82,10 @@ func (s *AkademiNodeRPCServer) Bootstrap(args *BootstrapArgs, reply *BootstrapRe
 	return err
 }
 
-// Gets the node datastore as a string.
-func (s *AkademiNodeRPCServer) Store(args *StoreArgs, reply *StoreReply) error {
-	keyID, err := s.AkademiNode.DHTStore(args.Data)
+// Publishes data to the DHT. Finds the best fitting nodes
+// and replicates the data to them.
+func (s *AkademiNodeRPCServer) Publish(args *PublishArgs, reply *PublishReply) error {
+	keyID, err := s.AkademiNode.Publish(args.Data)
 	reply.KeyID = keyID
 	return err
 }

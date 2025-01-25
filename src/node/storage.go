@@ -42,7 +42,7 @@ func (a *AkademiNode) Get(keyID core.BaseID) core.DataBytes {
 
 // Finds the best-fitting nodes and replicates the value
 // to them.
-func (a *AkademiNode) DHTStore(data core.DataBytes) (core.BaseID, error) {
+func (a *AkademiNode) Publish(data core.DataBytes) (core.BaseID, error) {
 	keyID := getKeyID(data)
 	nodes, err := a.Lookup(keyID, core.Replication)
 	if err != nil {

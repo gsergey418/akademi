@@ -26,11 +26,11 @@ $ ./akademi daemon
 
 ## Usage
 
-Akademi uses 40-bytes base32-encoded IDs that identify nodes and data on the network. They look like this: ```QSWTYJD3HPOE54DWURBPICK7FAWWMVD3```. To store data on the network, you have to run the store command and provide up to 4KiB of data you want to store:
+Akademi uses 40-bytes base32-encoded IDs that identify nodes and data on the network. They look like this: ```QSWTYJD3HPOE54DWURBPICK7FAWWMVD3```. To store data on the network, you have to run the publish command and provide up to 4KiB of data you want to store:
 
 ```
-$ ./akademi store https://github.com/gsergey418alt/akademi
-Data stored on the DHT successfully. KeyID: NB2HI4DTHIXS6Z3JORUHKYROMNXW2L3H.
+$ ./akademi publish https://github.com/gsergey418alt/akademi
+Data published to the DHT successfully. KeyID: NB2HI4DTHIXS6Z3JORUHKYROMNXW2L3H.
 ```
 
 The data will be stored on the DHT. To fetch it later use the get command and provide the key ID from the previous command:
@@ -54,8 +54,8 @@ $ make swarm
 Use the docker exec command to interact with the containers:
 
 ```
-$ docker exec akademi_1 akademi store "Hello, World!"
-Data stored on the DHT successfully. KeyID: JBSWY3DPFQQFO33SNRSCDWRZUPXF422L.
+$ docker exec akademi_1 akademi publish "Hello, World!"
+Data published to the DHT successfully. KeyID: JBSWY3DPFQQFO33SNRSCDWRZUPXF422L.
 ```
 
 You can also run a regular akademi node from a docker image.
@@ -84,7 +84,7 @@ graph TD;
     IncomingSocket["0.0.0.0:3856
     Incoming UDP socket"]--Deserialization-->UDPListener
     main["main()"]--./akademi daemon-->Daemon
-    main--RPC Calls (store, get, etc.)-->RPCSocket["127.0.0.1:3855
+    main--RPC Calls (publish, get, etc.)-->RPCSocket["127.0.0.1:3855
     RPC socket"]
     RPCSocket--Processes user's RPC calls-->AkademiNodeRPCServer
 ```
