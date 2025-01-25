@@ -14,6 +14,9 @@ import (
 // Handle a slice of bytes as a UDP message.
 func (u *UDPListener) handleUDPMessage(host *net.UDPAddr, buf []byte) error {
 	log.Print("Message from ", host, ": ", len(buf), " bytes.")
+	if len(buf) == 0 {
+		return fmt.Errorf("empty packet, dropping")
+	}
 	req := &pb.BaseMessage{}
 	err := proto.Unmarshal(buf, req)
 	if err != nil {
