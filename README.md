@@ -4,36 +4,36 @@ Akademi is a [Kademlia](https://en.wikipedia.org/wiki/Kademlia) implementation w
 
 ## Quick Start
 
-To get started with Akademi you can download the binary for your platform from the [releases](https://github.com/gsergey418alt/akademi/releases) page. To build from source, clone the repo and run make, a binary file will appear in the root of the project.
+To get started with Akademi, you can download the binary for your platform from the [releases](https://github.com/gsergey418alt/akademi/releases) page, or build from source by cloning the repository and running `make`, which will generate a binary file in the project's root directory.
 
-1. Clone the project.
+1. Clone the Akademi repository:
 ```
 $ git clone https://github.com/gsergey418alt/akademi
 ```
-2. Install development dependencies.
+2. Install development dependencies:
 ```
 $ sudo apt install go protoc
 $ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 ```
-3. Build it.
+3. Build it:
 ```
 $ make
 ```
-4. Start the daemon and provide addresses of bootstrap nodes.
+4. Start the daemon and provide addresses of bootstrap nodes:
 ```
 $ ./akademi daemon --bootstrap-nodes 133.146.89.223:3865
 ```
 
 ## Usage
 
-Akademi uses 40-bytes base32-encoded IDs that identify nodes and data on the network. They look like this: ```QSWTYJD3HPOE54DWURBPICK7FAWWMVD3```. To store data on the network, you have to run the publish command and provide up to 4KiB of data you want to store:
+Akademi uses 40-bytes base32-encoded IDs that identify nodes and data on the network. They look like this: `QSWTYJD3HPOE54DWURBPICK7FAWWMVD3`. To store data on the network, you have to run the `publish` command and provide up to 4KiB of data you want to store:
 
 ```
 $ ./akademi publish https://github.com/gsergey418alt/akademi
 Data published to the DHT successfully. KeyID: NB2HI4DTHIXS6Z3JORUHKYROMNXW2L3H.
 ```
 
-The data will be stored on the DHT. To fetch it later use the get command and provide the key ID from the previous command:
+The data will be stored on the DHT. To retrieve it later, use the `get` command and provide the key ID obtained from `publish`:
 
 ```
 $ ./akademi get NB2HI4DTHIXS6Z3JORUHKYROMNXW2L3H
@@ -46,7 +46,7 @@ The data is usually stored on the DHT for up to an hour, after that it needs to 
 
 ## Docker
 
-There's an option to run an akademi network simulation in docker with 3 bootstrap nodes and 100 regular nodes. To start it run make swarm. (You need to have docker installed on your system)
+There's an option to run an Akademi network simulation in docker with 3 bootstrap nodes and 100 regular nodes. To start it run make swarm. (You need to have docker installed on your system)
 ```
 $ make swarm
 ```
@@ -58,7 +58,7 @@ $ docker exec akademi_1 akademi publish "Hello, World!"
 Data published to the DHT successfully. KeyID: JBSWY3DPFQQFO33SNRSCDWRZUPXF422L.
 ```
 
-You can also run a regular akademi node from a docker image.
+You can also run a regular Akademi node from a docker image.
 
 ```
 $ make docker
