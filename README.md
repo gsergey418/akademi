@@ -81,7 +81,7 @@ graph TD;
     AkademiNode--Dispatches requests to other nodes-->UDPDispatcher;
     end
     UDPDispatcher--Serialization-->OutgoingSocket["Outgoing UDP socket"]
-    IncomingSocket["0.0.0.0:3856
+    IncomingSocket["0.0.0.0:3865
     Incoming UDP socket"]--Deserialization-->UDPListener
     main["main()"]--./akademi daemon-->Daemon
     main--RPC Calls (publish, get, etc.)-->RPCSocket["127.0.0.1:3855
