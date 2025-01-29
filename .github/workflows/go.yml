@@ -35,6 +35,9 @@ jobs:
 
     - name: Build
       run: make
+    
+    - name: Test
+      run: make test
 
     - name: Build Docker
       run: make docker

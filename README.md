@@ -91,13 +91,9 @@ graph TD;
 
 ## Running Tests
 
-To run tests on the project, launch the daemon in standalone mode and run make test.
+To run tests on the project, run make test.
 
-1. Run the daemon
-```
-$ ./akademi daemon --no-bootstrap
-```
-2. Run the tests
+1. Run the tests, the daemon would be automatically started in the background on port 3865.
 ```
 $ make test
 ```

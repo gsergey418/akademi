@@ -15,8 +15,12 @@ akademi: pb
 pb:
 	protoc --go_out=src/ src/pb/message.proto
 
-test:
+test: akademi
+	./akademi daemon --no-bootstrap&
+	PID=$$!
 	find . -type d -name tests -exec sh -c "cd {}; go test -v -count=1 ." \;
+	kill $$PID
+
 
 docker: akademi
 	${DOCKER_CMD} build -t akademi:latest .
