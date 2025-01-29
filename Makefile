@@ -17,9 +17,8 @@ pb:
 
 test: akademi
 	./akademi daemon --no-bootstrap&
-	PID=$$!
 	find . -type d -name tests -exec sh -c "cd {}; go test -v -count=1 ." \;
-	kill $$PID
+	pkill akademi
 
 
 docker: akademi
