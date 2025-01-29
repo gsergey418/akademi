@@ -16,7 +16,7 @@ pb:
 	protoc --go_out=src/ src/pb/message.proto
 
 test: akademi
-	./akademi daemon --no-bootstrap&
+	./akademi daemon --no-bootstrap &
 	find . -type d -name tests -exec sh -c "cd {}; go test -v -count=1 ." \;
 	pkill akademi
 

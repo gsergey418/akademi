@@ -55,7 +55,6 @@ func TestUpdateRoutingTable(t *testing.T) {
 	}
 
 	a.UpdateRoutingTable(r1)
-	fmt.Print("Node routing table:\n", a.RoutingTableString(), "\n\n")
 	for i := 0; i < core.BucketSize+10; i++ {
 		id := r1.NodeID
 		id[19] = byte(rand.IntN(255))
@@ -71,10 +70,18 @@ func TestUpdateRoutingTable(t *testing.T) {
 			ListenPort: core.IPPort(listenPort),
 		}
 		a.UpdateRoutingTable(r)
-		fmt.Print("Node routing table:\n", a.RoutingTableString(), "\n\n")
+		if !dispatcher.pingError {
+			nodes, err := a.GetClosestNodes(aliveID, 1)
+			if nodes[0].NodeID != aliveID || err != nil {
+				t.Fail()
+			}
+		} else {
+			nodes, err := a.GetClosestNodes(id, 1)
+			if nodes[0].NodeID != id || err != nil {
+				t.Fail()
+			}
+		}
 	}
 	a.UpdateRoutingTable(r2)
-	fmt.Print("Node routing table:\n", a.RoutingTableString(), "\n\n")
 	a.UpdateRoutingTable(r1)
-	fmt.Print("Node routing table:\n", a.RoutingTableString(), "\n\n")
 }
