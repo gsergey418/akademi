@@ -2,6 +2,8 @@
 
 Akademi is a [Kademlia](https://en.wikipedia.org/wiki/Kademlia) implementation written in Go. The nodes of Akademi communicate with each other via UDP messages in [Protocol Buffers](https://protobuf.dev/).
 
+![Akademi](screenshot.png)
+
 ## Quick Start
 
 To get started with Akademi, you can download the binary for your platform from the [releases](https://github.com/gsergey418alt/akademi/releases) page, or build from source by cloning the repository and running `make`, which will generate a binary file in the project's root directory.
