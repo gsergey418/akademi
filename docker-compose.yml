@@ -1,0 +1,44 @@
+services:
+  akademi_1:
+    image: akademi:latest
+    command: /bin/akademi daemon --bootstrap-nodes bootstrap_1:3865
+    networks:
+      - main
+  akademi_2:
+    image: akademi:latest
+    command: /bin/akademi daemon --bootstrap-nodes bootstrap_1:3865
+    networks:
+      - main
+  akademi_3:
+    image: akademi:latest
+    command: /bin/akademi daemon --bootstrap-nodes bootstrap_1:3865,bootstrap_2:3865
+    networks:
+      - main
+  akademi_4:
+    image: akademi:latest
+    command: /bin/akademi daemon --bootstrap-nodes bootstrap_1:3865,bootstrap_2:3865
+    networks:
+      - main
+  akademi_5:
+    image: akademi:latest
+    command: /bin/akademi daemon --bootstrap-nodes bootstrap_2:3865
+    networks:
+      - main
+  akademi_6:
+    image: akademi:latest
+    command: /bin/akademi daemon --bootstrap-nodes bootstrap_2:3865
+    networks:
+      - main
+  bootstrap_1:
+    image: akademi:latest
+    command: /bin/akademi daemon --no-bootstrap
+    networks:
+      - main
+  bootstrap_2:
+    image: akademi:latest
+    command: /bin/akademi daemon --no-bootstrap
+    networks:
+      - main
+
+networks:
+  main:

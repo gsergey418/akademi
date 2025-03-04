@@ -48,15 +48,15 @@ The data is usually stored on the DHT for up to an hour, after that it needs to 
 
 ## Docker
 
-There's an option to run an Akademi network simulation in docker with 3 bootstrap nodes and 100 regular nodes. To start it run make swarm. (You need to have docker installed on your system)
+There's an option to run an Akademi network simulation in docker-compose with 2 bootstrap nodes and 6 regular nodes. To start it run `docker-compose up -d`. (You need to have docker and docker-compose installed on your system)
 ```
-$ make swarm
+$ docker-compose up -d
 ```
 
 Use the docker exec command to interact with the containers:
 
 ```
-$ docker exec akademi_1 akademi publish "Hello, World!"
+$ docker-compose exec akademi_1 akademi publish "Hello, World!"
 Data published to the DHT successfully. KeyID: JBSWY3DPFQQFO33SNRSCDWRZUPXF422L.
 ```
 
