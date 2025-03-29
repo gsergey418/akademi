@@ -9,11 +9,11 @@ SWARM_PEERS ::= 100
 
 .PHONY: docker, clean, test
 
-akademi: pb
-	cd src/cmd && ${GC} build -o ../../akademi .
+akademi: proto
+	cd ./cmd && ${GC} build -o ../akademi .
 
-pb:
-	protoc --go_out=src/ src/pb/message.proto
+proto:
+	protoc --go_out=. ./pb/message.proto
 
 test: akademi
 	./akademi daemon --no-bootstrap &

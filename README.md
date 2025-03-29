@@ -6,11 +6,11 @@ Akademi is a [Kademlia](https://en.wikipedia.org/wiki/Kademlia) implementation w
 
 ## Quick Start
 
-To get started with Akademi, you can download the binary for your platform from the [releases](https://github.com/gsergey418alt/akademi/releases) page, or build from source by cloning the repository and running `make`, which will generate a binary file in the project's root directory.
+To get started with Akademi, you can download the binary for your platform from the [releases](https://github.com/gsergey418/akademi/releases) page, or build from source by cloning the repository and running `make`, which will generate a binary file in the project's root directory.
 
 1. Clone the Akademi repository:
 ```
-$ git clone https://github.com/gsergey418alt/akademi
+$ git clone https://github.com/gsergey418/akademi
 ```
 2. Install development dependencies:
 ```
@@ -31,7 +31,7 @@ $ ./akademi daemon --bootstrap-nodes 133.146.89.223:3865
 Akademi uses 40-bytes base32-encoded IDs that identify nodes and data on the network. They look like this: `QSWTYJD3HPOE54DWURBPICK7FAWWMVD3`. To store data on the network, you have to run the `publish` command and provide up to 4KiB of data you want to store:
 
 ```
-$ ./akademi publish https://github.com/gsergey418alt/akademi
+$ ./akademi publish https://github.com/gsergey418/akademi
 Data published to the DHT successfully. KeyID: NB2HI4DTHIXS6Z3JORUHKYROMNXW2L3H.
 ```
 
@@ -41,7 +41,7 @@ The data will be stored on the DHT. To retrieve it later, use the `get` command 
 $ ./akademi get NB2HI4DTHIXS6Z3JORUHKYROMNXW2L3H
 Data retreived from the DHT successfully.
 Content:
-https://github.com/gsergey418alt/akademi
+https://github.com/gsergey418/akademi
 ```
 
 The data is usually stored on the DHT for up to an hour, after that it needs to be republished.
@@ -64,7 +64,7 @@ You can also run a regular Akademi node from a docker image.
 
 ```
 $ make docker
-$ docker run --name akademi --rm -d -p 3865:3865/udp ghcr.io/gsergey418alt/akademi:latest
+$ docker run --name akademi --rm -d -p 3865:3865/udp ghcr.io/gsergey418/akademi:latest
 ```
 
 ## Technical Details
